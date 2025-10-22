@@ -1,10 +1,10 @@
-package com.myledger.backend;
+package com.myfinance;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BackendApplicationTests {
+class MyFinanceManagerApplicationTests {
 
 	@Test
 	void contextLoads() {

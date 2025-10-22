@@ -4,7 +4,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com.myledger"
+group = "com.myfinance"
 version = "0.0.1-SNAPSHOT"
 description = "Personal finance and expense management system"
 

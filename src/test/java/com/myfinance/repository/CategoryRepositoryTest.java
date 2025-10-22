@@ -1,0 +1,56 @@
+package com.myfinance.repository;
+
+import com.myfinance.domain.Category;
+import com.myfinance.domain.CategoryType;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@DataJpaTest
+public class CategoryRepositoryTest {
+
+    @Autowired
+    CategoryTypeRepository categoryTypeRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Test
+    @DisplayName("카테고리 타입을 저장할때 타입명 기입 누락")
+    void withoutCategoryTypeName() {
+
+        // given
+        String name = "";
+
+        // when && then
+        assertThatThrownBy(() -> CategoryType.of(name))
+                .isInstanceOf(IllegalArgumentException.class);
+
+    }
+
+    @Test
+    @DisplayName("카테고리 생성 및 조회")
+    void createAndFindCategory(){
+        // given
+        CategoryType incomeType = CategoryType.of("수입");
+        categoryTypeRepository.save(incomeType);
+
+        // given
+        Category newCategory = Category.createTopLevelCategory(incomeType, "급여").withDisplayOrder(1);
+
+        // when
+        Category savedCategory = categoryRepository.save(newCategory);
+        Long id = savedCategory.getId();
+        //then
+        assertThat(savedCategory.getId()).isNotNull();
+        assertThat(savedCategory.getCategoryType()).isEqualTo(incomeType);
+        assertThat(savedCategory.getName()).isEqualTo("급여");
+        assertThat(categoryRepository.findById(id)).isPresent();
+
+    }
+
+}
