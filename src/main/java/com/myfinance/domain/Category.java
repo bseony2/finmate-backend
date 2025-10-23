@@ -34,9 +34,26 @@ public class Category {
     }
 
     public static Category createTopLevelCategory(CategoryType categoryType, String name) {
+        validateName(name);
+        validateCategoryType(categoryType);
+
         Category category = new Category();
         category.name = name;
         category.categoryType = categoryType;
+
+        return category;
+    }
+
+    public static Category createSubCategory(CategoryType categoryType, String name, Category parent) {
+        validateName(name);
+        validateCategoryType(categoryType);
+        validateParent(parent);
+        validateParentCategory(categoryType, parent.getCategoryType());
+
+        Category category = new Category();
+        category.name = name;
+        category.categoryType = categoryType;
+        category.parent = parent;
 
         return category;
     }
@@ -52,6 +69,24 @@ public class Category {
         if(name==null || name.trim().isEmpty())
         {
             throw new IllegalArgumentException("카테고리의 이름은 필수입니다.");
+        }
+    }
+
+    private static void validateCategoryType(CategoryType categoryType) {
+        if (categoryType == null) {
+            throw new IllegalArgumentException("카테고리 타입은 필수입니다.");
+        }
+    }
+    
+    private static void validateParent(Category parent) {
+        if (parent == null) {
+            throw new IllegalArgumentException("하위 카테고리는 상위카테고리가 필수입니다");
+        }
+    }
+
+    private static void validateParentCategory(CategoryType categoryType, CategoryType parentCategoryType) {
+        if (!Objects.equals(categoryType.getId(), parentCategoryType.getId())) {
+            throw new IllegalArgumentException("하위 카테고리는 부모와 같은 타입이어야 합니다.");
         }
     }
 
