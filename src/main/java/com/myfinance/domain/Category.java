@@ -9,7 +9,7 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Category {
+public class Category extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +62,16 @@ public class Category {
         this.displayOrder = displayOrder;
 
         return this;
+    }
+
+    // Category.java에 추가
+    public void changeName(String name) {
+        validateName(name);
+        this.name = name;
+    }
+
+    public void changeDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
     }
 
     private static void validateName(String name)
