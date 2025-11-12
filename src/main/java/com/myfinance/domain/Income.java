@@ -62,4 +62,23 @@ public class Income extends BaseEntity {
 
         return income;
     }
+
+    public void update(
+            Category majorCategory,
+            Category minorCategory,
+            String content,
+            BigDecimal amount
+    ) {
+        if (amount == null) {
+            throw new IllegalArgumentException("금액은 null일수 없습니다");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("금액은 0보다 작거나 같을수 없습니다");
+        }
+
+        this.majorCategory = majorCategory;
+        this.minorCategory = minorCategory;
+        this.content = content;
+        this.amount = amount;
+    }
 }
