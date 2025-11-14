@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 public class IncomeResponse {
 
     private Long id;
+    private LocalDate incomeDate;
     private Long majorCategoryId;
     private String majorCategoryName;
     private Long minorCategoryId;
@@ -24,6 +26,7 @@ public class IncomeResponse {
     public static IncomeResponse from(Income income) {
         return IncomeResponse.builder()
                 .id(income.getId())
+                .incomeDate(income.getIncomeDate())
                 .majorCategoryId(income.getMajorCategory().getId())
                 .majorCategoryName(income.getMajorCategory().getName())
                 .minorCategoryId(income.getMinorCategory() != null ? income.getMinorCategory().getId() : null)

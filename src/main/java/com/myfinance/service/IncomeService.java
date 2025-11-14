@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class IncomeService {
                 : null;
 
         Income income = Income.of(
+                request.getIncomeDate(),
                 majorCategory,
                 minorCategory,
                 request.getContent(),
@@ -59,6 +61,16 @@ public class IncomeService {
     public List<IncomeResponse> getAllIncomes() {
         return incomeRepository.findAll().stream()
                 .map(IncomeResponse::from)
+                .toList();
+    }
+
+    public List<IncomeResponse> getMonthlyIncomes(int year, int month) {
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        return incomeRepository.findByIncomeDateBetweenOrderByIncomeDateDesc(startDate, endDate)
+                .stream()
+                .map(IncomeResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -75,6 +87,7 @@ public class IncomeService {
                 : null;
 
         income.update(
+                request.getIncomeDate(),
                 majorCategory,
                 minorCategory,
                 request.getContent(),

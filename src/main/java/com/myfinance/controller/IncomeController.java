@@ -39,11 +39,14 @@ public class IncomeController {
     }
 
     /**
-     * 전체 수입 목록 조회
+     * 월별 수입 목록 조회
      */
     @GetMapping
-    public ResponseEntity<List<IncomeResponse>> getAllIncomes() {
-        List<IncomeResponse> responses = incomeService.getAllIncomes();
+    public ResponseEntity<List<IncomeResponse>> getMonthlyIncomes(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        List<IncomeResponse> responses = incomeService.getMonthlyIncomes(year, month);
         return ResponseEntity.ok(responses);
     }
 

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -15,6 +16,12 @@ public class Income extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * 수입일자
+     */
+    @Column(nullable = false)
+    private LocalDate incomeDate;
 
     /**
      * 대분류 카테고리
@@ -43,7 +50,8 @@ public class Income extends BaseEntity {
     private BigDecimal amount;
 
     public static Income of(
-            Category majorCategory
+            LocalDate incomeDate
+            ,Category majorCategory
             , Category minorCategory
             , String content
             , BigDecimal amount
@@ -55,6 +63,7 @@ public class Income extends BaseEntity {
             throw new IllegalArgumentException("금액은 0보다 작거나 같을수 없습니다");
         }
         Income income = new Income();
+        income.incomeDate = incomeDate;
         income.majorCategory = majorCategory;
         income.minorCategory = minorCategory;
         income.content = content;
@@ -64,10 +73,11 @@ public class Income extends BaseEntity {
     }
 
     public void update(
-            Category majorCategory,
-            Category minorCategory,
-            String content,
-            BigDecimal amount
+            LocalDate incomeDate
+            , Category majorCategory
+            , Category minorCategory
+            , String content
+            , BigDecimal amount
     ) {
         if (amount == null) {
             throw new IllegalArgumentException("금액은 null일수 없습니다");
@@ -75,7 +85,7 @@ public class Income extends BaseEntity {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("금액은 0보다 작거나 같을수 없습니다");
         }
-
+        this.incomeDate = incomeDate;
         this.majorCategory = majorCategory;
         this.minorCategory = minorCategory;
         this.content = content;

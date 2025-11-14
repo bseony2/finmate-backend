@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -15,14 +15,14 @@ import java.util.List;
 public interface IncomeRepository extends JpaRepository<Income, Long> {
 
     /**
-     * 날짜 범위로 수입 목록 조회 (생성일 기준)
+     * 날짜 범위로 수입 목록 조회 (수입일자 기준)
      */
-    List<Income> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime startDate, LocalDateTime endDate);
+    List<Income> findByIncomeDateBetweenOrderByIncomeDateDesc(LocalDate startDate, LocalDate endDate);
 
     /**
      * 특정 카테고리의 수입 목록 조회
      */
-    List<Income> findByMajorCategoryIdOrderByCreatedAtDesc(Long majorCategoryId);
+    List<Income> findByMajorCategoryIdOrderByIncomeDateDesc(Long majorCategoryId);
 
     /**
      * 대분류 카테고리별 총 수입 금액 조회
