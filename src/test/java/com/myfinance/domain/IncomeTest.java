@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,7 +34,7 @@ class IncomeTest {
         BigDecimal amount = null;
 
         //when & then
-        assertThatThrownBy(() -> Income.of(majorCategory, minorCategory, content, amount))
+        assertThatThrownBy(() -> Income.of(LocalDate.now(), majorCategory, minorCategory, content, amount))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("금액은 null일수 없습니다");
     }
@@ -47,7 +48,7 @@ class IncomeTest {
         BigDecimal amount = BigDecimal.ZERO;
 
         //when & then
-        assertThatThrownBy(() -> Income.of(majorCategory, minorCategory, content, amount))
+        assertThatThrownBy(() -> Income.of(LocalDate.now(), majorCategory, minorCategory, content, amount))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("0보다 작거나 같을수 없습니다");
 

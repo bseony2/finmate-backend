@@ -58,6 +58,15 @@ public class Category extends BaseEntity{
         return category;
     }
 
+    @Deprecated
+    public static Category of(String name, Category parent) {
+        Category category = new Category();
+        category.name = name;
+        category.parent = parent;
+        // categoryType은 null (테스트에서만 사용)
+        return category;
+    }
+
     public Category withDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
 

@@ -39,6 +39,10 @@ public class Savings extends BaseEntity{
 
     public static Savings of(LocalDate savingDate, Category majorCategory, Category minorCategory, String acctNo, String content, BigDecimal amount) {
 
+        validateDate(savingDate);
+        validateAmount(amount);
+        validateCategory(majorCategory, minorCategory);
+
         Savings savings = new Savings();
         savings.savingDate = savingDate;
         savings.majorCategory = majorCategory;
@@ -48,5 +52,27 @@ public class Savings extends BaseEntity{
         savings.amount = amount;
 
         return savings;
+    }
+
+    private static void validateCategory(Category majorCategory, Category minorCategory) {
+        if(majorCategory == null) {
+            throw new IllegalArgumentException("대분류 카테고리는 null일 수 없습니다.");
+        }
+    }
+
+    private static void validateAmount(BigDecimal amount) {
+        if(amount == null) {
+            throw new IllegalArgumentException("금액값은 null일 수 없습니다.");
+        }
+
+        if(amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("금액값은 0이하일 수 없습니다.");
+        }
+    }
+
+    private static void validateDate(LocalDate savingDate) {
+        if(savingDate == null) {
+            throw new IllegalArgumentException("저축일자는 null일수 없습니다.");
+        }
     }
 }
