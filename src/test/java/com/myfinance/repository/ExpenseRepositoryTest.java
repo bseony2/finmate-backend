@@ -14,10 +14,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
 @DisplayName("ExpenseRepository 테스트")
-class ExpenseRepositoryTest {
+class ExpenseRepositoryTest extends AbstractRepositoryTest{
 
     @Autowired
     private ExpenseRepository expenseRepository;
@@ -33,18 +31,11 @@ class ExpenseRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        CategoryType categoryType = CategoryType.of("가계부");
+        majorCategory = Category.of(savingsType,"테스트1", null);
+        categoryRepository.save(majorCategory);
 
-        // ✅ 실제 프로덕션 메서드 사용
-        majorCategory = categoryRepository.save(
-                Category.createTopLevelCategory(categoryType, "주거비")
-                        .withDisplayOrder(1)
-        );
-
-        minorCategory = categoryRepository.save(
-                Category.createSubCategory(categoryType, "월세", majorCategory)
-                        .withDisplayOrder(1)
-        );
+        minorCategory = Category.of(savingsType,"테스트2", majorCategory);
+        categoryRepository.save(minorCategory);
     }
 
     @Test

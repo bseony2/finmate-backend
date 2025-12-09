@@ -21,9 +21,10 @@ class SavingsTest {
 
     @BeforeEach
     void setUp() {
+        CategoryType categoryType = CategoryType.of("테스트 카테고리");
         savingDate = LocalDate.of(2025, 12, 2);
-        majorCategory = Category.of("저축성지출", null);
-        minorCategory = Category.of("하나은행", majorCategory);
+        majorCategory = Category.of(categoryType,"저축성지출", null);
+        minorCategory = Category.of(categoryType,"하나은행", majorCategory);
         acctNo = "110-123-456789";
         content = "비상금";
         amount = new BigDecimal("500000");

@@ -59,11 +59,12 @@ public class Category extends BaseEntity{
     }
 
     @Deprecated
-    public static Category of(String name, Category parent) {
+    public static Category of(CategoryType categoryType, String name, Category parent) {
         Category category = new Category();
+        category.categoryType = categoryType;
         category.name = name;
         category.parent = parent;
-        // categoryType은 null (테스트에서만 사용)
+
         return category;
     }
 
