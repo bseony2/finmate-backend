@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,18 +58,33 @@ class SavingsRepositoryTest extends AbstractRepositoryTest{
     @Test
     @DisplayName("ID로 저축 조회")
     void findSavingsById_Success(){
+        // given
+        Savings savings = Savings.of(LocalDate.now(), majorCategory, minorCategory, "0000000000000", "테스트", new BigDecimal(100000));
 
+        // when
+        Savings savingData = savingsRepository.save(savings);
+
+        // then
+        assertThat(savingsRepository.findById(savingData.getId())).isPresent();
     }
 
     @Test
-    @DisplayName("월별 저축 목록 조회")
-    void findMonthlySavings_Success(){
+    @DisplayName("기간 저축 목록 조회")
+    void find_savings_by_date_range(){
+        // given
+        LocalDate date1 = LocalDate.of(2025, 12, 10);
+        LocalDate date2 = LocalDate.of(2025, 12, 12);
+        LocalDate date3 = LocalDate.of(2025, 12, 11);
 
-    }
+        // when
+        savingsRepository.save(Savings.of(date1, majorCategory, minorCategory, "00000", "테스트1", new  BigDecimal(100000)));
+        savingsRepository.save(Savings.of(date2, majorCategory, minorCategory, "00000", "테스트2", new  BigDecimal(100000)));
+        savingsRepository.save(Savings.of(date3, majorCategory, minorCategory, "00000", "테스트3", new  BigDecimal(100000)));
 
-    @Test
-    @DisplayName("저축 삭제")
-    void deleteSavings_Success(){
-
+        // then
+        List<Savings> result = savingsRepository.findBySavingDateBetweenOrderBySavingDateDesc(LocalDate.of(2025, 12, 1), LocalDate.of(2025, 12, 31));
+        assertThat(result).hasSize(3);
+        assertThat(result).extracting(Savings::getContent)
+                .containsExactly("테스트2", "테스트3", "테스트1");
     }
 }
