@@ -41,7 +41,7 @@ public class Savings extends BaseEntity{
 
         validateDate(savingDate);
         validateAmount(amount);
-        validateCategory(majorCategory, minorCategory);
+        validateCategory(majorCategory);
 
         Savings savings = new Savings();
         savings.savingDate = savingDate;
@@ -54,7 +54,27 @@ public class Savings extends BaseEntity{
         return savings;
     }
 
-    private static void validateCategory(Category majorCategory, Category minorCategory) {
+    public void update(
+            LocalDate savingDate,
+            Category majorCategory,
+            Category minorCategory,
+            String acctNo,
+            String content,
+            BigDecimal amount)
+    {
+        validateDate(savingDate);
+        validateAmount(amount);
+        validateCategory(majorCategory);
+
+        this.savingDate = savingDate;
+        this.majorCategory = majorCategory;
+        this.minorCategory = minorCategory;
+        this.acctNo = acctNo;
+        this.content = content;
+        this.amount = amount;
+    }
+
+    private static void validateCategory(Category majorCategory) {
         if(majorCategory == null) {
             throw new IllegalArgumentException("대분류 카테고리는 null일 수 없습니다.");
         }

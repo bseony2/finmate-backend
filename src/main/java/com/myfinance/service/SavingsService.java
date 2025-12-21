@@ -26,9 +26,11 @@ public class SavingsService {
         Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
 
-        Category minorCategory = categoryRepository.findById(request.getMinorCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다."));
-
+        Category minorCategory = null;
+        if (request.getMinorCategoryId() != null) {
+            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
+        }
         Savings savings = Savings.of(
             request.getSavingDate()
             , majorCategory
@@ -45,7 +47,7 @@ public class SavingsService {
 
     public Savings getSavingsById(long id) {
         return savingsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
     }
 
     public List<SavingsResponse> getMonthlySavings(int year, int month) {
@@ -55,5 +57,30 @@ public class SavingsService {
         List<Savings> savings = savingsRepository.findBySavingDateBetweenOrderBySavingDateDesc(startDate, endDate);
 
         return savings.stream().map(SavingsResponse::from).toList();
+    }
+
+    public SavingsResponse updateSavings(SavingsRequest request) {
+        Savings savings = savingsRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
+
+        Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
+
+        Category minorCategory = null;
+        if (request.getMinorCategoryId() != null) {
+            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
+        }
+
+        savings.update(
+                request.getSavingDate(),
+                majorCategory,
+                minorCategory,
+                request.getAcctNo(),
+                request.getContent(),
+                request.getAmount()
+        );
+
+        return SavingsResponse.from(savings);
     }
 }

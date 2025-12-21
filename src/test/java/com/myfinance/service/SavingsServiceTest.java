@@ -7,11 +7,10 @@ import com.myfinance.dto.response.SavingsResponse;
 import com.myfinance.repository.CategoryRepository;
 import com.myfinance.repository.CategoryTypeRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
@@ -23,12 +22,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @Transactional
 @SpringBootTest
-@RequiredArgsConstructor
 class SavingsServiceTest {
 
-    private final CategoryRepository categoryRepository;
-    private final CategoryTypeRepository categoryTypeRepository;
-    private final SavingsService savingsService;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryTypeRepository categoryTypeRepository;
+    @Autowired
+    private SavingsService savingsService;
 
     private CategoryType categoryType;
     private Category majorCategory;
@@ -103,31 +104,53 @@ class SavingsServiceTest {
     }
 
     @Test
-    @Disabled("TODO: updateSavings() 메서드 먼저 구현 필요")
     @DisplayName("저축 수정 성공")
     void updateSavings_Success() {
-        // TODO: 구현 필요
+        // given
+        SavingsRequest request = this.createRequest();
+        SavingsResponse savings = savingsService.createSavings(request);
+
+        SavingsRequest updateRequest = createUpdateRequest(savings.getId());
+
+        // when
+        SavingsResponse updated = savingsService.updateSavings(updateRequest);
+
+        // then
+        assertThat(updated.getId()).isEqualTo(savings.getId());
+        assertThat(updated.getSavingDate()).isEqualTo(LocalDate.of(2025, 12, 1));
+        assertThat(updated.getMajorCategoryName()).isEqualTo("update1");
+        assertThat(updated.getMinorCategoryName()).isEqualTo("update2");
+        assertThat(updated.getAcctNo()).isEqualTo("업데이트");
+        assertThat(updated.getContent()).isEqualTo("업데이트");
+        assertThat(updated.getAmount()).isEqualTo(new BigDecimal(999999));
     }
 
     @Test
-    @Disabled("TODO: updateSavings() 메서드 먼저 구현 필요")
     @DisplayName("저축 수정 실패 - 존재하지 않는 ID")
     void updateSavings_NotFound() {
-        // TODO: 구현 필요
+        // given
+        SavingsRequest updateRequest = createUpdateRequest(999999999L);
+
+        // when & then
+        assertThatThrownBy(() -> savingsService.updateSavings(updateRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("존재하지 않는 저축입니다");
+
     }
 
-    @Test
-    @Disabled("TODO: deleteSavings() 메서드 먼저 구현 필요")
-    @DisplayName("저축 삭제 성공")
-    void deleteSavings_Success() {
-        // TODO: 구현 필요
-    }
+    private SavingsRequest createUpdateRequest(Long id) {
+        Category update1 = createCategory("update1", null);
+        Category update2 = createCategory("update2", update1);
 
-    @Test
-    @Disabled("TODO: deleteSavings() 메서드 먼저 구현 필요")
-    @DisplayName("저축 삭제 실패 - 존재하지 않는 ID")
-    void deleteSavings_NotFound() {
-        // TODO: 구현 필요
+        return this.createRequest(
+                id,
+                LocalDate.of(2025, 12, 1)
+                , update1
+                , update2
+                , "업데이트"
+                , "업데이트"
+                , new BigDecimal(999999)
+        );
     }
 
     private SavingsRequest createRequest(LocalDate localdate) {
@@ -149,6 +172,18 @@ class SavingsServiceTest {
                 .acctNo("1234567890")
                 .content("테스트 저축")
                 .amount(new BigDecimal(100000))
+                .build();
+    }
+
+    private SavingsRequest createRequest(Long id,LocalDate localdate, Category majorCategory, Category minorCategory, String accString, String content, BigDecimal amount) {
+        return SavingsRequest.builder()
+                .id(id)
+                .savingDate(localdate)
+                .majorCategoryId(majorCategory.getId())
+                .minorCategoryId(minorCategory.getId())
+                .acctNo(accString)
+                .content(content)
+                .amount(amount)
                 .build();
     }
 }
