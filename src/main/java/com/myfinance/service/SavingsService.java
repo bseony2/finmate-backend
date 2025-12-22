@@ -6,9 +6,9 @@ import com.myfinance.dto.request.SavingsRequest;
 import com.myfinance.dto.response.SavingsResponse;
 import com.myfinance.repository.CategoryRepository;
 import com.myfinance.repository.SavingsRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,14 +23,10 @@ public class SavingsService {
 
 
     public SavingsResponse createSavings(SavingsRequest request) {
-        Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
+        Category majorCategory = getMajorCategory(request);
 
-        Category minorCategory = null;
-        if (request.getMinorCategoryId() != null) {
-            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
-        }
+        Category minorCategory = getMinorCategory(request);
+
         Savings savings = Savings.of(
             request.getSavingDate()
             , majorCategory
@@ -45,14 +41,18 @@ public class SavingsService {
         return SavingsResponse.from(saved);
     }
 
-    public Savings getSavingsById(long id) {
-        return savingsRepository.findById(id)
+    @Transactional(readOnly = true)
+    public SavingsResponse getSavingsById(Long id) {
+        Savings savings = savingsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
+
+        return SavingsResponse.from(savings);
     }
 
+    @Transactional(readOnly = true)
     public List<SavingsResponse> getMonthlySavings(int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.withDayOfMonth(startDate.getDayOfMonth());
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
         List<Savings> savings = savingsRepository.findBySavingDateBetweenOrderBySavingDateDesc(startDate, endDate);
 
@@ -63,14 +63,9 @@ public class SavingsService {
         Savings savings = savingsRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
 
-        Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
+        Category majorCategory = getMajorCategory(request);
 
-        Category minorCategory = null;
-        if (request.getMinorCategoryId() != null) {
-            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
-        }
+        Category minorCategory = getMinorCategory(request);
 
         savings.update(
                 request.getSavingDate(),
@@ -82,5 +77,26 @@ public class SavingsService {
         );
 
         return SavingsResponse.from(savings);
+    }
+
+    public void deleteSavings(Long id) {
+        Savings savings = savingsRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
+
+        savingsRepository.delete(savings);
+    }
+
+    private Category getMajorCategory(SavingsRequest request) {
+        return categoryRepository.findById(request.getMajorCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
+    }
+
+    private Category getMinorCategory(SavingsRequest request) {
+        Category minorCategory = null;
+        if (request.getMinorCategoryId() != null) {
+            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
+        }
+        return minorCategory;
     }
 }

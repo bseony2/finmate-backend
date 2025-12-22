@@ -89,18 +89,18 @@ class SavingsServiceTest {
     @DisplayName("월별 저축 조회 - 날짜 범위 검색")
     void getMonthlySavings_Success() {
         // given
-        savingsService.createSavings(createRequest(LocalDate.of(2025, 12, 1)));
-        savingsService.createSavings(createRequest(LocalDate.of(2025, 12, 3)));
-        savingsService.createSavings(createRequest(LocalDate.of(2025, 11, 1)));
+        savingsService.createSavings(createRequest(LocalDate.of(1000, 12, 1)));
+        savingsService.createSavings(createRequest(LocalDate.of(1000, 12, 25)));
+        savingsService.createSavings(createRequest(LocalDate.of(1000, 11, 1)));
 
         // when
-        List<SavingsResponse> monthlySavings = savingsService.getMonthlySavings(2025, 12);
+        List<SavingsResponse> monthlySavings = savingsService.getMonthlySavings(1000, 12);
 
         // then
         assertThat(monthlySavings).hasSize(2);
         assertThat(monthlySavings)
                 .extracting(SavingsResponse::getSavingDate)
-                .allMatch(date -> 2025 ==date.getYear() && 12 == date.getMonthValue());
+                .allMatch(date -> 1000 ==date.getYear() && 12 == date.getMonthValue());
     }
 
     @Test
@@ -151,6 +151,34 @@ class SavingsServiceTest {
                 , "업데이트"
                 , new BigDecimal(999999)
         );
+    }
+
+    @Test
+    @DisplayName("저축 삭제 성공")
+    void deleteSavings_Success() {
+        // given
+        SavingsResponse savings = savingsService.createSavings(createRequest());
+
+        // when
+        savingsService.deleteSavings(savings.getId());
+
+        // then
+        assertThatThrownBy(() -> savingsService.getSavingsById(savings.getId()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("존재하지 않는 저축입니다");
+    }
+
+    @Test
+    @DisplayName("저축 삭제 실패 - 존재하지 않는 ID")
+    void deleteSavings_NotFound() {
+        // given
+        Long id = 99999999L;
+        
+        // when & then
+        assertThatThrownBy(() -> savingsService.deleteSavings(id))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("존재하지 않는 저축입니다");
+        
     }
 
     private SavingsRequest createRequest(LocalDate localdate) {
