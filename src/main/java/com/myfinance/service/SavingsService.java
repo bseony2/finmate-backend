@@ -59,8 +59,8 @@ public class SavingsService {
         return savings.stream().map(SavingsResponse::from).toList();
     }
 
-    public SavingsResponse updateSavings(SavingsRequest request) {
-        Savings savings = savingsRepository.findById(request.getId())
+    public SavingsResponse updateSavings(Long id, SavingsRequest request) {
+        Savings savings = savingsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
 
         Category majorCategory = getMajorCategory(request);

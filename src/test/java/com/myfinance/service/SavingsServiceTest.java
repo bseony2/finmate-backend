@@ -110,10 +110,10 @@ class SavingsServiceTest {
         SavingsRequest request = this.createRequest();
         SavingsResponse savings = savingsService.createSavings(request);
 
-        SavingsRequest updateRequest = createUpdateRequest(savings.getId());
+        SavingsRequest updateRequest = createUpdateRequest();
 
         // when
-        SavingsResponse updated = savingsService.updateSavings(updateRequest);
+        SavingsResponse updated = savingsService.updateSavings(savings.getId(), updateRequest);
 
         // then
         assertThat(updated.getId()).isEqualTo(savings.getId());
@@ -129,21 +129,21 @@ class SavingsServiceTest {
     @DisplayName("저축 수정 실패 - 존재하지 않는 ID")
     void updateSavings_NotFound() {
         // given
-        SavingsRequest updateRequest = createUpdateRequest(999999999L);
+        Long notExistId = 999999999L;
+        SavingsRequest updateRequest = createRequest();
 
         // when & then
-        assertThatThrownBy(() -> savingsService.updateSavings(updateRequest))
+        assertThatThrownBy(() -> savingsService.updateSavings(notExistId, updateRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 저축입니다");
 
     }
 
-    private SavingsRequest createUpdateRequest(Long id) {
+    private SavingsRequest createUpdateRequest() {
         Category update1 = createCategory("update1", null);
         Category update2 = createCategory("update2", update1);
 
         return this.createRequest(
-                id,
                 LocalDate.of(2025, 12, 1)
                 , update1
                 , update2
@@ -203,9 +203,8 @@ class SavingsServiceTest {
                 .build();
     }
 
-    private SavingsRequest createRequest(Long id,LocalDate localdate, Category majorCategory, Category minorCategory, String accString, String content, BigDecimal amount) {
+    private SavingsRequest createRequest(LocalDate localdate, Category majorCategory, Category minorCategory, String accString, String content, BigDecimal amount) {
         return SavingsRequest.builder()
-                .id(id)
                 .savingDate(localdate)
                 .majorCategoryId(majorCategory.getId())
                 .minorCategoryId(minorCategory.getId())
