@@ -1,16 +1,12 @@
 package com.myfinance.service;
 
 import com.myfinance.domain.Category;
-import com.myfinance.domain.CategoryType;
 import com.myfinance.dto.request.SavingsRequest;
 import com.myfinance.dto.response.SavingsResponse;
-import com.myfinance.repository.CategoryRepository;
-import com.myfinance.repository.CategoryTypeRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
@@ -22,40 +18,17 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @Transactional
 @SpringBootTest
-class SavingsServiceTest {
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private CategoryTypeRepository categoryTypeRepository;
-    @Autowired
-    private SavingsService savingsService;
-
-    private CategoryType categoryType;
-    private Category majorCategory;
-    private Category minorCategory;
+class SavingsServiceTest extends AbstractServiceTest{
 
     @BeforeEach
     void setUp() {
-        categoryType = CategoryType.of("테스트");
-        categoryTypeRepository.save(categoryType);
-        majorCategory = createCategory("테스트1", null);
-        minorCategory = createCategory("테스트2", majorCategory);
-    }
 
+        String type = "테스트";
+        String major = "테스트1";
+        String minor = "테스트2";
 
-    private Category createCategory(String name, Category parent) {
+        setInitCategory(type, major, minor);
 
-        Category category;
-        if (parent == null) {
-            category = Category.createTopLevelCategory(categoryType, name);
-        } else {
-            category = Category.createSubCategory(categoryType, name, parent);
-        }
-
-        categoryRepository.save(category);
-
-        return category;
     }
 
     @Test
@@ -76,12 +49,12 @@ class SavingsServiceTest {
     @DisplayName("저축 조회 실패 - 존재하지 않는 ID")
     void getSavingsById_NotFound() {
         // given
-        long notExistId = 9999999999L;
+        long notExistId = -1;
 
         // when & then
         assertThatThrownBy(() -> savingsService.getSavingsById(notExistId))
                 .isInstanceOf(IllegalArgumentException.class)
-                        .hasMessageContaining("존재하지 않는 저축입니다");
+                .hasMessageContaining("존재하지 않는 저축입니다");
 
     }
 
@@ -172,7 +145,7 @@ class SavingsServiceTest {
     @DisplayName("저축 삭제 실패 - 존재하지 않는 ID")
     void deleteSavings_NotFound() {
         // given
-        Long id = 99999999L;
+        Long id = -1L;
         
         // when & then
         assertThatThrownBy(() -> savingsService.deleteSavings(id))

@@ -1,10 +1,8 @@
 package com.myfinance.service;
 
-import com.myfinance.domain.*;
+import com.myfinance.domain.ExpenseType;
 import com.myfinance.dto.request.ExpenseRequest;
 import com.myfinance.dto.response.ExpenseResponse;
-import com.myfinance.repository.CategoryRepository;
-import com.myfinance.repository.CategoryTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,38 +14,25 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
 @DisplayName("ExpenseService 테스트")
-class ExpenseServiceTest {
+class ExpenseServiceTest extends AbstractServiceTest{
 
     @Autowired
     private ExpenseService expenseService;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private CategoryTypeRepository categoryTypeRepository;
-
-    private Category majorCategory;
-    private Category minorCategory;
-
     @BeforeEach
     void setUp() {
-        CategoryType categoryType = CategoryType.of("가계부");
 
-        majorCategory = categoryRepository.save(
-                Category.createTopLevelCategory(categoryType, "주거비")
-                        .withDisplayOrder(1)
-        );
+        String type = "test";
+        String major = "주거비";
+        String minor = "월세";
 
-        minorCategory = categoryRepository.save(
-                Category.createSubCategory(categoryType, "월세", majorCategory)
-                        .withDisplayOrder(1)
-        );
+        setInitCategory(type, major, minor);
     }
 
     @Test
@@ -208,25 +193,27 @@ class ExpenseServiceTest {
                 )
         );
 
+        Long id = created.getId();
+
         // when
-        expenseService.deleteExpense(created.getId());
+        expenseService.deleteExpense(id);
 
         // then
-        assertThatThrownBy(() -> expenseService.getExpense(created.getId()))
+        assertThatThrownBy(() -> expenseService.getExpense(id))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("존재하지 않는 지출");
+                .hasMessageContaining("존재하지 않는 지출입니다");
     }
 
     @Test
     @DisplayName("존재하지 않는 지출 삭제 시 예외가 발생한다")
     void delete_non_existing_expense() {
         // given
-        Long invalidId = 999L;
+        Long invalidId = -1L;
 
         // when & then
         assertThatThrownBy(() -> expenseService.deleteExpense(invalidId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("존재하지 않는 지출");
+                .hasMessageContaining("존재하지 않는 지출입니다");
     }
 
     @Test
@@ -258,21 +245,22 @@ class ExpenseServiceTest {
     void get_monthly_fixed_expenses() {
         // given
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
+                createRequest(LocalDate.of(1, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
+                createRequest(LocalDate.of(1, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 20), ExpenseType.FIXED, "관리비", new BigDecimal("100000"))
+                createRequest(LocalDate.of(1, 10, 20), ExpenseType.FIXED, "관리비", new BigDecimal("100000"))
         );
 
         // when
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(2025, 10, ExpenseType.FIXED);
+        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(1, 10, ExpenseType.FIXED);
 
         // then
-        assertThat(expenses).hasSize(2);
-        assertThat(expenses).allMatch(e -> e.getExpenseType() == ExpenseType.FIXED);
+        assertThat(expenses)
+                .hasSize(2)
+                .allMatch(e -> e.getExpenseType() == ExpenseType.FIXED);
     }
 
     @Test
@@ -293,8 +281,9 @@ class ExpenseServiceTest {
         List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(2025, 10, ExpenseType.VARIABLE);
 
         // then
-        assertThat(expenses).hasSize(2);
-        assertThat(expenses).allMatch(e -> e.getExpenseType() == ExpenseType.VARIABLE);
+        assertThat(expenses)
+                .hasSize(2)
+                .allMatch(e -> e.getExpenseType() == ExpenseType.VARIABLE);
     }
 
     @Test
@@ -302,17 +291,17 @@ class ExpenseServiceTest {
     void monthly_expenses_are_ordered_by_date() {
         // given
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 20), ExpenseType.FIXED, "C", new BigDecimal("100000"))
+                createRequest(LocalDate.of(1, 10, 20), ExpenseType.FIXED, "C", new BigDecimal("100000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 10), ExpenseType.FIXED, "A", new BigDecimal("100000"))
+                createRequest(LocalDate.of(1, 10, 10), ExpenseType.FIXED, "A", new BigDecimal("100000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 15), ExpenseType.FIXED, "B", new BigDecimal("100000"))
+                createRequest(LocalDate.of(1, 10, 15), ExpenseType.FIXED, "B", new BigDecimal("100000"))
         );
 
         // when
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(2025, 10, null);
+        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(1, 10, null);
 
         // then
         assertThat(expenses).hasSize(3);

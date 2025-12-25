@@ -28,12 +28,12 @@ public class ExpenseService {
     @Transactional
     public ExpenseResponse createExpense(ExpenseRequest request) {
         Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
 
         Category minorCategory = null;
         if (request.getMinorCategoryId() != null) {
             minorCategory = categoryRepository.findById(request.getMinorCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리"));
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
         }
 
         Expense expense = Expense.of(
@@ -58,15 +58,15 @@ public class ExpenseService {
     @Transactional
     public ExpenseResponse updateExpense(Long id, ExpenseRequest request) {
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출입니다"));
 
         Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
 
         Category minorCategory = null;
         if (request.getMinorCategoryId() != null) {
             minorCategory = categoryRepository.findById(request.getMinorCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리"));
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
         }
 
         expense.update(
@@ -89,7 +89,7 @@ public class ExpenseService {
     @Transactional
     public void deleteExpense(Long id) {
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출입니다"));
         expenseRepository.delete(expense);
     }
 
@@ -98,7 +98,7 @@ public class ExpenseService {
      */
     public List<ExpenseResponse> getMonthlyExpenses(int year, int month, ExpenseType expenseType) {
         LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
         List<Expense> expenses;
         if (expenseType != null) {
@@ -119,7 +119,7 @@ public class ExpenseService {
      */
     public ExpenseResponse getExpense(Long id) {
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출입니다"));
         return ExpenseResponse.from(expense);
     }
 }

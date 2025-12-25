@@ -1,6 +1,7 @@
 package com.myfinance.repository;
 
-import com.myfinance.domain.*;
+import com.myfinance.domain.Expense;
+import com.myfinance.domain.ExpenseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
+@Transactional
 @DisplayName("ExpenseRepository 테스트")
 class ExpenseRepositoryTest extends AbstractRepositoryTest{
 
@@ -26,16 +29,10 @@ class ExpenseRepositoryTest extends AbstractRepositoryTest{
     @Autowired
     private CategoryTypeRepository categoryTypeRepository;
 
-    private Category majorCategory;
-    private Category minorCategory;
-
     @BeforeEach
     void setUp() {
-        majorCategory = Category.of(savingsType,"테스트1", null);
-        categoryRepository.save(majorCategory);
-
-        minorCategory = Category.of(savingsType,"테스트2", majorCategory);
-        categoryRepository.save(minorCategory);
+        majorCategory = createCategory(savingsType, "테스트1", null);
+        minorCategory = createCategory(savingsType, "테스트2", this.majorCategory);
     }
 
     @Test
@@ -87,25 +84,28 @@ class ExpenseRepositoryTest extends AbstractRepositoryTest{
         List<Expense> expenses = expenseRepository.findByExpenseDateBetween(start, end);
 
         // then
-        assertThat(expenses).hasSize(2);
         assertThat(expenses)
+                .hasSize(2)
                 .allMatch(e -> !e.getExpenseDate().isBefore(start) && !e.getExpenseDate().isAfter(end));
     }
 
     @Test
-    @DisplayName("지출 타입으로 조회할 수 있다")
+    @DisplayName("지출 타입으로 월간 지출 타입을 조회할 수 있다")
     void find_expenses_by_type() {
         // given
-        expenseRepository.save(createExpense(LocalDate.of(2025, 10, 1), ExpenseType.FIXED));
-        expenseRepository.save(createExpense(LocalDate.of(2025, 10, 5), ExpenseType.FIXED));
-        expenseRepository.save(createExpense(LocalDate.of(2025, 10, 10), ExpenseType.VARIABLE));
+        expenseRepository.save(createExpense(LocalDate.of(1, 10, 1), ExpenseType.FIXED));
+        expenseRepository.save(createExpense(LocalDate.of(1, 10, 5), ExpenseType.FIXED));
+        expenseRepository.save(createExpense(LocalDate.of(1, 10, 10), ExpenseType.VARIABLE));
 
         // when
-        List<Expense> fixedExpenses = expenseRepository.findByExpenseType(ExpenseType.FIXED);
+        LocalDate start = LocalDate.of(1, 10, 1);
+        LocalDate end = LocalDate.of(1, 10, 31);
+        List<Expense> fixedExpenses = expenseRepository.findByExpenseDateBetweenAndExpenseType(start, end, ExpenseType.FIXED);
 
         // then
-        assertThat(fixedExpenses).hasSize(2);
-        assertThat(fixedExpenses).allMatch(Expense::isFixed);
+        assertThat(fixedExpenses)
+                .hasSize(2)
+                .allMatch(Expense::isFixed);
     }
 
     @Test
