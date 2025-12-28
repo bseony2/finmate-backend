@@ -1,28 +1,29 @@
 spring:
   application:
-    name: my-ledger-backend
+    name: my-finance-manager-backend
 
-  # H2 Database 설정
+
+  # PostgreSQL Database 설정
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./data/ledger
-    username: sa
-    password:
-
-  # H2 Console 설정
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/my_finance_manager
+    username: postgres
+    password: postgres
 
   # JPA 설정
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-  properties:
-    hibernate:
-      format_sql: true
-      show_sql: true
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-  server:
-    port: 8080
+  # data.sql 실행 안 함
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 8080
