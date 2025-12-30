@@ -1,1 +1,1 @@
-rootProject.name = "backend"
+rootProject.name = "my-finance-manager-backend"
