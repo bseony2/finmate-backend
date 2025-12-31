@@ -3,7 +3,6 @@ package com.myfinance.ledger.domain.expense;
 import com.myfinance.ledger.domain.common.BaseEntity;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.category.ExpenseType;
-import com.myfinance.ledger.infrastructure.persistence.expense.ExpenseTypeConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

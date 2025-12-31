@@ -1,4 +1,4 @@
-package com.myfinance.ledger.infrastructure.persistence.expense;
+package com.myfinance.ledger.domain.expense;
 
 import com.myfinance.ledger.domain.category.ExpenseType;
 import jakarta.persistence.AttributeConverter;
