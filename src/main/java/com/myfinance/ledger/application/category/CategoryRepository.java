@@ -1,12 +1,24 @@
-package com.myfinance.ledger.infrastructure.persistence.category;
+package com.myfinance.ledger.application.category;
 
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.category.CategoryType;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface CategoryRepository extends JpaRepository<Category,Long> {
+/**
+ * Category 영속성을 위한 Port 인터페이스
+ * Application 레이어가 필요로 하는 Repository 기능을 정의
+ */
+public interface CategoryRepository {
+
+    Category save(Category category);
+
+    Optional<Category> findById(Long id);
+
+    List<Category> findAll();
+
+    void deleteById(Long id);
 
     List<Category> findByCategoryTypeAndParentIsNull(CategoryType categoryType);
 

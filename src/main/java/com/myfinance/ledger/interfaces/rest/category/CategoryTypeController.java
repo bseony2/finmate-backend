@@ -45,7 +45,7 @@ public class CategoryTypeController {
      * DELETE /api/category-types/{id}
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategoryType(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteCategoryType(@PathVariable Long id) {
         categoryTypeService.deleteCategoryType(id);
         return ResponseEntity.noContent().build();
     }

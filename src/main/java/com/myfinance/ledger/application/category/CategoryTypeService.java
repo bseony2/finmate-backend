@@ -1,7 +1,6 @@
 package com.myfinance.ledger.application.category;
 
 import com.myfinance.ledger.domain.category.CategoryType;
-import com.myfinance.ledger.infrastructure.persistence.category.CategoryTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +40,10 @@ public class CategoryTypeService {
      * 카테고리 타입 삭제
      */
     @Transactional
-    public void deleteCategoryType(Integer id) {
+    public void deleteCategoryType(Long id) {
         CategoryType categoryType = categoryTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 타입입니다"));
 
-        categoryTypeRepository.delete(categoryType);
+        categoryTypeRepository.deleteById(categoryType.getId());
     }
 }

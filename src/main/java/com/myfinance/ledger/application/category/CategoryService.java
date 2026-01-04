@@ -4,8 +4,6 @@ import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.category.CategoryType;
 import com.myfinance.ledger.interfaces.rest.category.dto.CategoryRequest;
 import com.myfinance.ledger.interfaces.rest.category.dto.CategoryResponse;
-import com.myfinance.ledger.infrastructure.persistence.category.CategoryRepository;
-import com.myfinance.ledger.infrastructure.persistence.category.CategoryTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +112,6 @@ public class CategoryService {
             throw new IllegalStateException("하위 카테고리가 있는 카테고리는 삭제할 수 없습니다");
         }
 
-        categoryRepository.delete(category);
+        categoryRepository.deleteById(category.getId());
     }
 }

@@ -1,11 +1,11 @@
 package com.myfinance.ledger.application.expense;
 
+import com.myfinance.ledger.application.category.CategoryRepository;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.expense.Expense;
 import com.myfinance.ledger.domain.category.ExpenseType;
 import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseRequest;
 import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseResponse;
-import com.myfinance.ledger.infrastructure.persistence.category.CategoryRepository;
 import com.myfinance.ledger.infrastructure.persistence.expense.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

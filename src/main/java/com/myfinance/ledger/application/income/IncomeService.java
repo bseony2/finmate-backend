@@ -1,18 +1,17 @@
 package com.myfinance.ledger.application.income;
 
+import com.myfinance.ledger.application.category.CategoryRepository;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.income.Income;
+import com.myfinance.ledger.infrastructure.persistence.income.IncomeRepository;
 import com.myfinance.ledger.interfaces.rest.income.dto.IncomeRequest;
 import com.myfinance.ledger.interfaces.rest.income.dto.IncomeResponse;
-import com.myfinance.ledger.infrastructure.persistence.category.CategoryRepository;
-import com.myfinance.ledger.infrastructure.persistence.income.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 수입 서비스

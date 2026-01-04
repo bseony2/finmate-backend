@@ -1,11 +1,11 @@
 package com.myfinance.ledger.application.savings;
 
+import com.myfinance.ledger.application.category.CategoryRepository;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.savings.Savings;
+import com.myfinance.ledger.infrastructure.persistence.savings.SavingsRepository;
 import com.myfinance.ledger.interfaces.rest.savings.dto.SavingsRequest;
 import com.myfinance.ledger.interfaces.rest.savings.dto.SavingsResponse;
-import com.myfinance.ledger.infrastructure.persistence.category.CategoryRepository;
-import com.myfinance.ledger.infrastructure.persistence.savings.SavingsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
