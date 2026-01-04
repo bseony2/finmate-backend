@@ -6,7 +6,6 @@ import com.myfinance.ledger.domain.expense.Expense;
 import com.myfinance.ledger.domain.category.ExpenseType;
 import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseRequest;
 import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseResponse;
-import com.myfinance.ledger.infrastructure.persistence.expense.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +89,7 @@ public class ExpenseService {
     public void deleteExpense(Long id) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출입니다"));
-        expenseRepository.delete(expense);
+        expenseRepository.deleteById(expense.getId());
     }
 
     /**

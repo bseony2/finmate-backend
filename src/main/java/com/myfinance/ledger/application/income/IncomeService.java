@@ -3,7 +3,6 @@ package com.myfinance.ledger.application.income;
 import com.myfinance.ledger.application.category.CategoryRepository;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.income.Income;
-import com.myfinance.ledger.infrastructure.persistence.income.IncomeRepository;
 import com.myfinance.ledger.interfaces.rest.income.dto.IncomeRequest;
 import com.myfinance.ledger.interfaces.rest.income.dto.IncomeResponse;
 import lombok.RequiredArgsConstructor;
@@ -102,7 +101,7 @@ public class IncomeService {
     @Transactional
     public void deleteIncome(Long id) {
         Income income = findIncomeById(id);
-        incomeRepository.delete(income);
+        incomeRepository.deleteById(income.getId());
     }
 
     /**

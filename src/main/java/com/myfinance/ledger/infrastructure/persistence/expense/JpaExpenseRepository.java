@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface ExpenseRepository extends JpaRepository<Expense, Long> {
+public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
 
     /**
      * 특정 기간의 지출 조회

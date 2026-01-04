@@ -3,7 +3,6 @@ package com.myfinance.ledger.application.savings;
 import com.myfinance.ledger.application.category.CategoryRepository;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.savings.Savings;
-import com.myfinance.ledger.infrastructure.persistence.savings.SavingsRepository;
 import com.myfinance.ledger.interfaces.rest.savings.dto.SavingsRequest;
 import com.myfinance.ledger.interfaces.rest.savings.dto.SavingsResponse;
 import lombok.RequiredArgsConstructor;
@@ -83,7 +82,7 @@ public class SavingsService {
         Savings savings = savingsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 저축입니다"));
 
-        savingsRepository.delete(savings);
+        savingsRepository.deleteById(savings.getId());
     }
 
     private Category getMajorCategory(SavingsRequest request) {
