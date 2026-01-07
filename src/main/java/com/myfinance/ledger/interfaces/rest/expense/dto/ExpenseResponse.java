@@ -1,6 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.expense.dto;
 
-import com.myfinance.ledger.domain.expense.Expense;
+import com.myfinance.ledger.application.expense.dto.ExpenseResult;
 import com.myfinance.ledger.domain.category.ExpenseType;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,22 +31,22 @@ public class ExpenseResponse {
     /**
      * Entity → DTO 변환
      */
-    public static ExpenseResponse from(Expense expense) {
+    public static ExpenseResponse from(ExpenseResult result) {
         return ExpenseResponse.builder()
-                .id(expense.getId())
-                .expenseDate(expense.getExpenseDate())
-                .expenseType(expense.getExpenseType())
-                .majorCategoryId(expense.getMajorCategory().getId())
-                .majorCategoryName(expense.getMajorCategory().getName())
-                .minorCategoryId(expense.getMinorCategory() != null ?
-                        expense.getMinorCategory().getId() : null)
-                .minorCategoryName(expense.getMinorCategory() != null ?
-                        expense.getMinorCategory().getName() : null)
-                .content(expense.getContent())
-                .paymentAmount(expense.getPaymentAmount())
-                .discountAmount(expense.getDiscountAmount())
-                .actualAmount(expense.getActualAmount())
-                .remark(expense.getRemark())
+                .id(result.getId())
+                .expenseDate(result.getExpenseDate())
+                .expenseType(result.getExpenseType())
+                .majorCategoryId(result.getMajorCategoryId())
+                .majorCategoryName(result.getMajorCategoryName())
+                .minorCategoryId(result.getMinorCategoryId() != null ?
+                        result.getMinorCategoryId() : null)
+                .minorCategoryName(result.getMinorCategoryName() != null ?
+                        result.getMinorCategoryName() : null)
+                .content(result.getContent())
+                .paymentAmount(result.getPaymentAmount())
+                .discountAmount(result.getDiscountAmount())
+                .actualAmount(result.getActualAmount())
+                .remark(result.getRemark())
                 .build();
     }
 }

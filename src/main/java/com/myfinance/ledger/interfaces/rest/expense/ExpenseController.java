@@ -1,9 +1,10 @@
 package com.myfinance.ledger.interfaces.rest.expense;
 
+import com.myfinance.ledger.application.expense.ExpenseService;
+import com.myfinance.ledger.application.expense.dto.ExpenseResult;
 import com.myfinance.ledger.domain.category.ExpenseType;
 import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseRequest;
 import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseResponse;
-import com.myfinance.ledger.application.expense.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,8 @@ public class ExpenseController {
      */
     @PostMapping
     public ResponseEntity<ExpenseResponse> createExpense(@RequestBody ExpenseRequest request) {
-        ExpenseResponse response = expenseService.createExpense(request);
-        return ResponseEntity.ok(response);
+        ExpenseResult result = expenseService.createExpense(request.toCommand());
+        return ResponseEntity.ok(ExpenseResponse.from(result));
     }
 
     /**
@@ -34,8 +35,8 @@ public class ExpenseController {
             @PathVariable Long id,
             @RequestBody ExpenseRequest request
     ) {
-        ExpenseResponse response = expenseService.updateExpense(id, request);
-        return ResponseEntity.ok(response);
+        ExpenseResult result = expenseService.updateExpense(id, request.toCommand());
+        return ResponseEntity.ok(ExpenseResponse.from(result));
     }
 
     /**
@@ -57,8 +58,8 @@ public class ExpenseController {
             @RequestParam(required = false) Integer expenseType
     ) {
         ExpenseType type = expenseType != null ? ExpenseType.fromJson(expenseType) : null;
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(year, month, type);
-        return ResponseEntity.ok(expenses);
+        List<ExpenseResult> result = expenseService.getMonthlyExpenses(year, month, type);
+        return ResponseEntity.ok(result.stream().map(ExpenseResponse::from).toList());
     }
 
     /**
@@ -66,7 +67,7 @@ public class ExpenseController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseResponse> getExpense(@PathVariable Long id) {
-        ExpenseResponse response = expenseService.getExpense(id);
-        return ResponseEntity.ok(response);
+        ExpenseResult result = expenseService.getExpense(id);
+        return ResponseEntity.ok(ExpenseResponse.from(result));
     }
 }

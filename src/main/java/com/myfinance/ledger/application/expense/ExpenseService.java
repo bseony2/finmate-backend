@@ -1,11 +1,11 @@
 package com.myfinance.ledger.application.expense;
 
 import com.myfinance.ledger.application.category.CategoryRepository;
+import com.myfinance.ledger.application.expense.dto.ExpenseCommand;
+import com.myfinance.ledger.application.expense.dto.ExpenseResult;
 import com.myfinance.ledger.domain.category.Category;
-import com.myfinance.ledger.domain.expense.Expense;
 import com.myfinance.ledger.domain.category.ExpenseType;
-import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseRequest;
-import com.myfinance.ledger.interfaces.rest.expense.dto.ExpenseResponse;
+import com.myfinance.ledger.domain.expense.Expense;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,61 +25,61 @@ public class ExpenseService {
      * 지출 생성
      */
     @Transactional
-    public ExpenseResponse createExpense(ExpenseRequest request) {
-        Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
+    public ExpenseResult createExpense(ExpenseCommand command) {
+        Category majorCategory = categoryRepository.findById(command.getMajorCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
 
         Category minorCategory = null;
-        if (request.getMinorCategoryId() != null) {
-            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
+        if (command.getMinorCategoryId() != null) {
+            minorCategory = categoryRepository.findById(command.getMinorCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
         }
 
         Expense expense = Expense.of(
-                request.getExpenseDate(),
-                request.getExpenseType(),
+                command.getExpenseDate(),
+                command.getExpenseType(),
                 majorCategory,
                 minorCategory,
-                request.getContent(),
-                request.getPaymentAmount(),
-                request.getDiscountAmount(),
-                request.getActualAmount(),
-                request.getRemark()
+                command.getContent(),
+                command.getPaymentAmount(),
+                command.getDiscountAmount(),
+                command.getActualAmount(),
+                command.getRemark()
         );
 
         Expense saved = expenseRepository.save(expense);
-        return ExpenseResponse.from(saved);
+        return ExpenseResult.from(saved);
     }
 
     /**
      * 지출 수정
      */
     @Transactional
-    public ExpenseResponse updateExpense(Long id, ExpenseRequest request) {
+    public ExpenseResult updateExpense(Long id, ExpenseCommand command) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출입니다"));
 
-        Category majorCategory = categoryRepository.findById(request.getMajorCategoryId())
+        Category majorCategory = categoryRepository.findById(command.getMajorCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대분류 카테고리입니다"));
 
         Category minorCategory = null;
-        if (request.getMinorCategoryId() != null) {
-            minorCategory = categoryRepository.findById(request.getMinorCategoryId())
+        if (command.getMinorCategoryId() != null) {
+            minorCategory = categoryRepository.findById(command.getMinorCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 소분류 카테고리입니다"));
         }
 
         expense.update(
-                request.getExpenseDate(),
+                command.getExpenseDate(),
                 majorCategory,
                 minorCategory,
-                request.getContent(),
-                request.getPaymentAmount(),
-                request.getDiscountAmount(),
-                request.getActualAmount(),
-                request.getRemark()
+                command.getContent(),
+                command.getPaymentAmount(),
+                command.getDiscountAmount(),
+                command.getActualAmount(),
+                command.getRemark()
         );
 
-        return ExpenseResponse.from(expense);
+        return ExpenseResult.from(expense);
     }
 
     /**
@@ -95,7 +95,7 @@ public class ExpenseService {
     /**
      * 특정 월의 지출 목록 조회
      */
-    public List<ExpenseResponse> getMonthlyExpenses(int year, int month, ExpenseType expenseType) {
+    public List<ExpenseResult> getMonthlyExpenses(int year, int month, ExpenseType expenseType) {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
@@ -109,16 +109,16 @@ public class ExpenseService {
         }
 
         return expenses.stream()
-                .map(ExpenseResponse::from)
+                .map(ExpenseResult::from)
                 .toList();
     }
 
     /**
      * 지출 상세 조회
      */
-    public ExpenseResponse getExpense(Long id) {
+    public ExpenseResult getExpense(Long id) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출입니다"));
-        return ExpenseResponse.from(expense);
+        return ExpenseResult.from(expense);
     }
 }

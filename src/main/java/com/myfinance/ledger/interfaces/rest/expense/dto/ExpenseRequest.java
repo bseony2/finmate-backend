@@ -1,5 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.expense.dto;
 
+import com.myfinance.ledger.application.expense.dto.ExpenseCommand;
 import com.myfinance.ledger.domain.category.ExpenseType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,4 +36,18 @@ public class ExpenseRequest {
     private BigDecimal actualAmount;
 
     private String remark;
+
+    public ExpenseCommand toCommand() {
+        return new ExpenseCommand(
+                this.expenseDate,
+                this.expenseType,
+                this.majorCategoryId,
+                this.minorCategoryId,
+                this.content,
+                this.paymentAmount,
+                this.discountAmount,
+                this.actualAmount,
+                this.remark
+        );
+    }
 }
