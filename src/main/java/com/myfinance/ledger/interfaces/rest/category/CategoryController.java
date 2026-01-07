@@ -1,5 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.category;
 
+import com.myfinance.ledger.application.category.dto.CategoryResult;
 import com.myfinance.ledger.interfaces.rest.category.dto.CategoryRequest;
 import com.myfinance.ledger.interfaces.rest.category.dto.CategoryResponse;
 import com.myfinance.ledger.application.category.CategoryService;
@@ -27,8 +28,8 @@ public class CategoryController {
     public ResponseEntity<List<CategoryResponse>> getCategoryTree(
             @RequestParam(name = "types") List<String> categoryTypeNames) {
 
-        List<CategoryResponse> categories = categoryService.getCategoryTree(categoryTypeNames);
-        return ResponseEntity.ok(categories);
+        List<CategoryResult> results = categoryService.getCategoryTree(categoryTypeNames);
+        return ResponseEntity.ok(results.stream().map(CategoryResponse::from).toList());
     }
 
     /**
@@ -37,8 +38,8 @@ public class CategoryController {
      */
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest request) {
-        CategoryResponse response = categoryService.createCategory(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        CategoryResult result = categoryService.createCategory(request.toCommand());
+        return ResponseEntity.status(HttpStatus.CREATED).body(CategoryResponse.from(result));
     }
 
     /**
@@ -49,8 +50,8 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long id,
             @RequestBody CategoryRequest request) {
-        CategoryResponse response = categoryService.updateCategory(id, request);
-        return ResponseEntity.ok(response);
+        CategoryResult result = categoryService.updateCategory(id, request.toCommand());
+        return ResponseEntity.ok(CategoryResponse.from(result));
     }
 
     /**

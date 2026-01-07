@@ -1,5 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.category.dto;
 
+import com.myfinance.ledger.application.category.dto.CategoryCommand;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,13 @@ public class CategoryRequest {
     private String categoryTypeName; // "수입" 또는 "지출"
     private Long parentId; // 최상위 카테고리면 null
     private Integer displayOrder;
+
+    public CategoryCommand toCommand() {
+        return new CategoryCommand(
+                this.name
+                , this.categoryTypeName
+                , this.parentId
+                , this.displayOrder
+        );
+    }
 }

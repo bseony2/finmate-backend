@@ -1,9 +1,9 @@
 package com.myfinance.ledger.application.category;
 
+import com.myfinance.ledger.application.category.dto.CategoryCommand;
+import com.myfinance.ledger.application.category.dto.CategoryResult;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.category.CategoryType;
-import com.myfinance.ledger.interfaces.rest.category.dto.CategoryRequest;
-import com.myfinance.ledger.interfaces.rest.category.dto.CategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ public class CategoryService {
     /**
      * 여러 타입의 카테고리 계층 구조 조회
      */
-    public List<CategoryResponse> getCategoryTree(List<String> categoryTypeNames) {
+    public List<CategoryResult> getCategoryTree(List<String> categoryTypeNames) {
         // 1. 카테고리 타입들 조회
         List<CategoryType> categoryTypes = categoryTypeNames.stream()
                 .map(name -> categoryTypeRepository.findByName(name)
@@ -43,7 +43,7 @@ public class CategoryService {
                     List<Category> categories = entry.getValue();
                     return categories.stream()
                             .filter(Category::isTopLevel)
-                            .map(category -> CategoryResponse.fromWithChildren(category, categories));
+                            .map(category -> CategoryResult.fromWithChildren(category, categories));
                 })
                 .toList();
     }
@@ -52,50 +52,50 @@ public class CategoryService {
      * 카테고리 생성
      */
     @Transactional
-    public CategoryResponse createCategory(CategoryRequest request) {
-        CategoryType categoryType = categoryTypeRepository.findByName(request.getCategoryTypeName())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 타입입니다: " + request.getCategoryTypeName()));
+    public CategoryResult createCategory(CategoryCommand command) {
+        CategoryType categoryType = categoryTypeRepository.findByName(command.getCategoryTypeName())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 타입입니다: " + command.getCategoryTypeName()));
 
         Category category;
 
-        if (request.getParentId() == null) {
+        if (command.getParentId() == null) {
             // 최상위 카테고리 생성
-            category = Category.createTopLevelCategory(categoryType, request.getName());
+            category = Category.createTopLevelCategory(categoryType, command.getName());
         } else {
             // 하위 카테고리 생성
-            Category parent = categoryRepository.findById(request.getParentId())
+            Category parent = categoryRepository.findById(command.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부모 카테고리입니다"));
-            category = Category.createSubCategory(categoryType, request.getName(), parent);
+            category = Category.createSubCategory(categoryType, command.getName(), parent);
         }
 
         // displayOrder 설정
-        if (request.getDisplayOrder() != null) {
-            category = category.withDisplayOrder(request.getDisplayOrder());
+        if (command.getDisplayOrder() != null) {
+            category = category.withDisplayOrder(command.getDisplayOrder());
         }
 
         Category saved = categoryRepository.save(category);
-        return CategoryResponse.from(saved);
+        return CategoryResult.from(saved);
     }
 
     /**
      * 카테고리 수정
      */
     @Transactional
-    public CategoryResponse updateCategory(Long id, CategoryRequest request) {
+    public CategoryResult updateCategory(Long id, CategoryCommand command) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다"));
 
         // 이름 수정
-        if (request.getName() != null) {
-            category.changeName(request.getName());
+        if (command.getName() != null) {
+            category.changeName(command.getName());
         }
 
         // displayOrder 수정
-        if (request.getDisplayOrder() != null) {
-            category.changeDisplayOrder(request.getDisplayOrder());
+        if (command.getDisplayOrder() != null) {
+            category.changeDisplayOrder(command.getDisplayOrder());
         }
 
-        return CategoryResponse.from(category);
+        return CategoryResult.from(category);
     }
 
     /**
