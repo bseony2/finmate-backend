@@ -1,8 +1,9 @@
-package com.myfinance.service;
+package com.myfinance.ledger.application;
 
-import com.myfinance.domain.ExpenseType;
-import com.myfinance.dto.request.ExpenseRequest;
-import com.myfinance.dto.response.ExpenseResponse;
+import com.myfinance.ledger.application.expense.ExpenseService;
+import com.myfinance.ledger.application.expense.dto.ExpenseCommand;
+import com.myfinance.ledger.application.expense.dto.ExpenseResult;
+import com.myfinance.ledger.domain.category.ExpenseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class ExpenseServiceTest extends AbstractServiceTest{
     @DisplayName("지출을 생성할 수 있다")
     void create_expense() {
         // given
-        ExpenseRequest request = createRequest(
+        ExpenseCommand command = createCommand(
                 LocalDate.of(2025, 10, 20),
                 ExpenseType.FIXED,
                 "월세",
@@ -47,58 +48,53 @@ class ExpenseServiceTest extends AbstractServiceTest{
         );
 
         // when
-        ExpenseResponse response = expenseService.createExpense(request);
+        ExpenseResult result = expenseService.createExpense(command);
 
         // then
-        assertThat(response.getId()).isNotNull();
-        assertThat(response.getContent()).isEqualTo("월세");
-        assertThat(response.getExpenseType()).isEqualTo(ExpenseType.FIXED);
-        assertThat(response.getMajorCategoryName()).isEqualTo("주거비");
-        assertThat(response.getMinorCategoryName()).isEqualTo("월세");
-        assertThat(response.getPaymentAmount()).isEqualTo(new BigDecimal("500000"));
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getContent()).isEqualTo("월세");
+        assertThat(result.getExpenseType()).isEqualTo(ExpenseType.FIXED);
+        assertThat(result.getMajorCategoryName()).isEqualTo("주거비");
+        assertThat(result.getMinorCategoryName()).isEqualTo("월세");
+        assertThat(result.getPaymentAmount()).isEqualTo(new BigDecimal("500000"));
     }
 
     @Test
     @DisplayName("소분류 없이 지출을 생성할 수 있다")
     void create_expense_without_minor_category() {
         // given
-        ExpenseRequest request = ExpenseRequest.builder()
-                .expenseDate(LocalDate.of(2025, 10, 20))
-                .expenseType(ExpenseType.FIXED)
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(null)  // 소분류 없음
-                .content("기타 주거비")
-                .paymentAmount(new BigDecimal("100000"))
-                .discountAmount(new BigDecimal("0"))
-                .actualAmount(new BigDecimal("100000"))
-                .build();
+        ExpenseCommand command = createCommandWithCategoryId(
+                LocalDate.of(2025, 10, 20),
+                ExpenseType.FIXED,
+                "기타 주거비",
+                new BigDecimal("100000"),
+                majorCategory.getId(),
+                null
+        );
 
         // when
-        ExpenseResponse response = expenseService.createExpense(request);
+        ExpenseResult result = expenseService.createExpense(command);
 
         // then
-        assertThat(response.getMinorCategoryId()).isNull();
-        assertThat(response.getMinorCategoryName()).isNull();
-        assertThat(response.getMajorCategoryName()).isEqualTo("주거비");
+        assertThat(result.getMinorCategoryId()).isNull();
+        assertThat(result.getMinorCategoryName()).isNull();
+        assertThat(result.getMajorCategoryName()).isEqualTo("주거비");
     }
 
     @Test
     @DisplayName("존재하지 않는 대분류 카테고리로 생성 시 예외가 발생한다")
     void create_expense_with_invalid_major_category() {
         // given
-        ExpenseRequest request = ExpenseRequest.builder()
-                .expenseDate(LocalDate.of(2025, 10, 20))
-                .expenseType(ExpenseType.FIXED)
-                .majorCategoryId(999L)
-                .minorCategoryId(minorCategory.getId())
-                .content("월세")
-                .paymentAmount(new BigDecimal("500000"))
-                .discountAmount(new BigDecimal("0"))
-                .actualAmount(new BigDecimal("500000"))
-                .build();
-
+        ExpenseCommand command = createCommandWithCategoryId(
+                LocalDate.of(2025, 10, 20),
+                ExpenseType.FIXED,
+                "없는대분류",
+                new BigDecimal("500000"),
+                -1L,
+                -1L
+        );
         // when & then
-        assertThatThrownBy(() -> expenseService.createExpense(request))
+        assertThatThrownBy(() -> expenseService.createExpense(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 대분류 카테고리");
     }
@@ -107,19 +103,16 @@ class ExpenseServiceTest extends AbstractServiceTest{
     @DisplayName("존재하지 않는 소분류 카테고리로 생성 시 예외가 발생한다")
     void create_expense_with_invalid_minor_category() {
         // given
-        ExpenseRequest request = ExpenseRequest.builder()
-                .expenseDate(LocalDate.of(2025, 10, 20))
-                .expenseType(ExpenseType.FIXED)
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(999L)
-                .content("월세")
-                .paymentAmount(new BigDecimal("500000"))
-                .discountAmount(new BigDecimal("0"))
-                .actualAmount(new BigDecimal("500000"))
-                .build();
-
+        ExpenseCommand command = createCommandWithCategoryId(
+                LocalDate.of(2025, 10, 20),
+                ExpenseType.FIXED,
+                "월세",
+                new BigDecimal("500000"),
+                majorCategory.getId(),
+                -1L
+        ) ;
         // when & then
-        assertThatThrownBy(() -> expenseService.createExpense(request))
+        assertThatThrownBy(() -> expenseService.createExpense(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 소분류 카테고리");
     }
@@ -128,8 +121,8 @@ class ExpenseServiceTest extends AbstractServiceTest{
     @DisplayName("지출을 수정할 수 있다")
     void update_expense() {
         // given
-        ExpenseResponse created = expenseService.createExpense(
-                createRequest(
+        ExpenseResult result = expenseService.createExpense(
+                createCommand(
                         LocalDate.of(2025, 10, 20),
                         ExpenseType.FIXED,
                         "월세",
@@ -137,23 +130,23 @@ class ExpenseServiceTest extends AbstractServiceTest{
                 )
         );
 
-        ExpenseRequest updateRequest = ExpenseRequest.builder()
-                .expenseDate(LocalDate.of(2025, 10, 21))
-                .expenseType(ExpenseType.FIXED)
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(minorCategory.getId())
-                .content("월세 수정")
-                .paymentAmount(new BigDecimal("550000"))
-                .discountAmount(new BigDecimal("10000"))
-                .actualAmount(new BigDecimal("540000"))
-                .remark("할인받음")
-                .build();
+        ExpenseCommand command = createCommand(
+                LocalDate.of(2025, 10, 21),
+                ExpenseType.FIXED,
+                majorCategory.getId(),
+                minorCategory.getId(),
+                "월세 수정",
+                new BigDecimal("550000"),
+                new BigDecimal("10000"),
+                new BigDecimal("540000"),
+                "할인받음"
+        );
 
         // when
-        ExpenseResponse updated = expenseService.updateExpense(created.getId(), updateRequest);
+        ExpenseResult updated = expenseService.updateExpense(result.getId(), command);
 
         // then
-        assertThat(updated.getId()).isEqualTo(created.getId());
+        assertThat(updated.getId()).isEqualTo(result.getId());
         assertThat(updated.getExpenseDate()).isEqualTo(LocalDate.of(2025, 10, 21));
         assertThat(updated.getContent()).isEqualTo("월세 수정");
         assertThat(updated.getPaymentAmount()).isEqualTo(new BigDecimal("550000"));
@@ -167,7 +160,7 @@ class ExpenseServiceTest extends AbstractServiceTest{
     void update_non_existing_expense() {
         // given
         Long invalidId = 999L;
-        ExpenseRequest request = createRequest(
+        ExpenseCommand command = createCommand(
                 LocalDate.of(2025, 10, 20),
                 ExpenseType.FIXED,
                 "월세",
@@ -175,7 +168,7 @@ class ExpenseServiceTest extends AbstractServiceTest{
         );
 
         // when & then
-        assertThatThrownBy(() -> expenseService.updateExpense(invalidId, request))
+        assertThatThrownBy(() -> expenseService.updateExpense(invalidId, command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 지출");
     }
@@ -184,8 +177,8 @@ class ExpenseServiceTest extends AbstractServiceTest{
     @DisplayName("지출을 삭제할 수 있다")
     void delete_expense() {
         // given
-        ExpenseResponse created = expenseService.createExpense(
-                createRequest(
+        ExpenseResult result = expenseService.createExpense(
+                createCommand(
                         LocalDate.of(2025, 10, 20),
                         ExpenseType.FIXED,
                         "월세",
@@ -193,7 +186,7 @@ class ExpenseServiceTest extends AbstractServiceTest{
                 )
         );
 
-        Long id = created.getId();
+        Long id = result.getId();
 
         // when
         expenseService.deleteExpense(id);
@@ -221,22 +214,22 @@ class ExpenseServiceTest extends AbstractServiceTest{
     void get_monthly_expenses() {
         // given
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
+                createCommand(LocalDate.of(2025, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
+                createCommand(LocalDate.of(2025, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 11, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
+                createCommand(LocalDate.of(2025, 11, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
         );
 
         // when
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(2025, 10, null);
+        List<ExpenseResult> results = expenseService.getMonthlyExpenses(2025, 10, null);
 
         // then
-        assertThat(expenses).hasSize(2);
-        assertThat(expenses)
-                .extracting(ExpenseResponse::getExpenseDate)
+        assertThat(results).hasSize(2);
+        assertThat(results)
+                .extracting(ExpenseResult::getExpenseDate)
                 .allMatch(date -> date.getYear() == 2025 && date.getMonthValue() == 10);
     }
 
@@ -245,20 +238,20 @@ class ExpenseServiceTest extends AbstractServiceTest{
     void get_monthly_fixed_expenses() {
         // given
         expenseService.createExpense(
-                createRequest(LocalDate.of(1, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
+                createCommand(LocalDate.of(1, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(1, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
+                createCommand(LocalDate.of(1, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(1, 10, 20), ExpenseType.FIXED, "관리비", new BigDecimal("100000"))
+                createCommand(LocalDate.of(1, 10, 20), ExpenseType.FIXED, "관리비", new BigDecimal("100000"))
         );
 
         // when
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(1, 10, ExpenseType.FIXED);
+        List<ExpenseResult> results = expenseService.getMonthlyExpenses(1, 10, ExpenseType.FIXED);
 
         // then
-        assertThat(expenses)
+        assertThat(results)
                 .hasSize(2)
                 .allMatch(e -> e.getExpenseType() == ExpenseType.FIXED);
     }
@@ -268,20 +261,20 @@ class ExpenseServiceTest extends AbstractServiceTest{
     void get_monthly_variable_expenses() {
         // given
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
+                createCommand(LocalDate.of(2025, 10, 1), ExpenseType.FIXED, "월세", new BigDecimal("500000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
+                createCommand(LocalDate.of(2025, 10, 15), ExpenseType.VARIABLE, "외식", new BigDecimal("50000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(2025, 10, 20), ExpenseType.VARIABLE, "쇼핑", new BigDecimal("30000"))
+                createCommand(LocalDate.of(2025, 10, 20), ExpenseType.VARIABLE, "쇼핑", new BigDecimal("30000"))
         );
 
         // when
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(2025, 10, ExpenseType.VARIABLE);
+        List<ExpenseResult> results = expenseService.getMonthlyExpenses(2025, 10, ExpenseType.VARIABLE);
 
         // then
-        assertThat(expenses)
+        assertThat(results)
                 .hasSize(2)
                 .allMatch(e -> e.getExpenseType() == ExpenseType.VARIABLE);
     }
@@ -291,31 +284,31 @@ class ExpenseServiceTest extends AbstractServiceTest{
     void monthly_expenses_are_ordered_by_date() {
         // given
         expenseService.createExpense(
-                createRequest(LocalDate.of(1, 10, 20), ExpenseType.FIXED, "C", new BigDecimal("100000"))
+                createCommand(LocalDate.of(1, 10, 20), ExpenseType.FIXED, "C", new BigDecimal("100000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(1, 10, 10), ExpenseType.FIXED, "A", new BigDecimal("100000"))
+                createCommand(LocalDate.of(1, 10, 10), ExpenseType.FIXED, "A", new BigDecimal("100000"))
         );
         expenseService.createExpense(
-                createRequest(LocalDate.of(1, 10, 15), ExpenseType.FIXED, "B", new BigDecimal("100000"))
+                createCommand(LocalDate.of(1, 10, 15), ExpenseType.FIXED, "B", new BigDecimal("100000"))
         );
 
         // when
-        List<ExpenseResponse> expenses = expenseService.getMonthlyExpenses(1, 10, null);
+        List<ExpenseResult> results = expenseService.getMonthlyExpenses(1, 10, null);
 
         // then
-        assertThat(expenses).hasSize(3);
-        assertThat(expenses.get(0).getContent()).isEqualTo("A");
-        assertThat(expenses.get(1).getContent()).isEqualTo("B");
-        assertThat(expenses.get(2).getContent()).isEqualTo("C");
+        assertThat(results).hasSize(3);
+        assertThat(results.get(0).getContent()).isEqualTo("A");
+        assertThat(results.get(1).getContent()).isEqualTo("B");
+        assertThat(results.get(2).getContent()).isEqualTo("C");
     }
 
     @Test
     @DisplayName("지출 상세를 조회할 수 있다")
     void get_expense_detail() {
         // given
-        ExpenseResponse created = expenseService.createExpense(
-                createRequest(
+        ExpenseResult result = expenseService.createExpense(
+                createCommand(
                         LocalDate.of(2025, 10, 20),
                         ExpenseType.FIXED,
                         "월세",
@@ -324,10 +317,10 @@ class ExpenseServiceTest extends AbstractServiceTest{
         );
 
         // when
-        ExpenseResponse found = expenseService.getExpense(created.getId());
+        ExpenseResult found = expenseService.getExpense(result.getId());
 
         // then
-        assertThat(found.getId()).isEqualTo(created.getId());
+        assertThat(found.getId()).isEqualTo(result.getId());
         assertThat(found.getContent()).isEqualTo("월세");
         assertThat(found.getPaymentAmount()).isEqualTo(new BigDecimal("500000"));
     }
@@ -345,21 +338,59 @@ class ExpenseServiceTest extends AbstractServiceTest{
     }
 
     // Helper method
-    private ExpenseRequest createRequest(
+    private ExpenseCommand createCommand(
             LocalDate date,
             ExpenseType type,
             String content,
             BigDecimal paymentAmount
     ) {
-        return ExpenseRequest.builder()
-                .expenseDate(date)
-                .expenseType(type)
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(minorCategory.getId())
-                .content(content)
-                .paymentAmount(paymentAmount)
-                .discountAmount(new BigDecimal("0"))
-                .actualAmount(paymentAmount)
-                .build();
+        return new ExpenseCommand(
+                date,
+                type,
+                majorCategory.getId(),
+                minorCategory.getId(),
+                content,
+                paymentAmount,
+                new BigDecimal("0"),
+                paymentAmount,
+                ""
+        );
+    }
+
+    private ExpenseCommand createCommandWithCategoryId(
+            LocalDate date,
+            ExpenseType type,
+            String content,
+            BigDecimal paymentAmount,
+            Long majorCategoryId,
+            Long minorCategoryId
+    ) {
+        return new ExpenseCommand(
+                date,
+                type,
+                majorCategoryId,
+                minorCategoryId,
+                content,
+                paymentAmount,
+                new BigDecimal("0"),
+                paymentAmount,
+                ""
+        );
+    }
+
+    private ExpenseCommand createCommand(
+            LocalDate date,
+            ExpenseType type,
+            Long majorCategoryId,
+            Long minorCategoryId,
+            String content,
+            BigDecimal paymentAmount,
+            BigDecimal discountAmount,
+            BigDecimal actualAmount,
+            String remark
+    ){
+
+        return new ExpenseCommand(date, type, majorCategoryId, minorCategoryId, content, paymentAmount, discountAmount, actualAmount, remark);
+
     }
 }

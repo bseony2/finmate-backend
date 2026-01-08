@@ -1,9 +1,10 @@
-package com.myfinance.service;
+package com.myfinance.ledger.application;
 
-import com.myfinance.domain.Category;
-import com.myfinance.domain.CategoryType;
-import com.myfinance.repository.CategoryRepository;
-import com.myfinance.repository.CategoryTypeRepository;
+import com.myfinance.ledger.application.category.CategoryRepository;
+import com.myfinance.ledger.application.category.CategoryTypeRepository;
+import com.myfinance.ledger.domain.category.Category;
+import com.myfinance.ledger.domain.category.CategoryType;
+import com.myfinance.ledger.application.savings.SavingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 abstract class AbstractServiceTest {
