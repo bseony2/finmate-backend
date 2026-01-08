@@ -1,5 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.income.dto;
 
+import com.myfinance.ledger.application.income.dto.IncomeResult;
 import com.myfinance.ledger.domain.income.Income;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,21 +21,17 @@ public class IncomeResponse {
     private String minorCategoryName;
     private String content;
     private BigDecimal amount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    public static IncomeResponse from(Income income) {
+    public static IncomeResponse from(IncomeResult result) {
         return IncomeResponse.builder()
-                .id(income.getId())
-                .incomeDate(income.getIncomeDate())
-                .majorCategoryId(income.getMajorCategory().getId())
-                .majorCategoryName(income.getMajorCategory().getName())
-                .minorCategoryId(income.getMinorCategory() != null ? income.getMinorCategory().getId() : null)
-                .minorCategoryName(income.getMinorCategory() != null ? income.getMinorCategory().getName() : null)
-                .content(income.getContent())
-                .amount(income.getAmount())
-                .createdAt(income.getCreatedAt())
-                .updatedAt(income.getUpdatedAt())
+                .id(result.getId())
+                .incomeDate(result.getIncomeDate())
+                .majorCategoryId(result.getMajorCategoryId())
+                .majorCategoryName(result.getMajorCategoryName())
+                .minorCategoryId(result.getMinorCategoryId() != null ? result.getMinorCategoryId() : null)
+                .minorCategoryName(result.getMinorCategoryName() != null ? result.getMinorCategoryName() : null)
+                .content(result.getContent())
+                .amount(result.getAmount())
                 .build();
     }
 }

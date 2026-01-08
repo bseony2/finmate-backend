@@ -1,8 +1,9 @@
 package com.myfinance.ledger.interfaces.rest.income;
 
+import com.myfinance.ledger.application.income.IncomeService;
+import com.myfinance.ledger.application.income.dto.IncomeResult;
 import com.myfinance.ledger.interfaces.rest.income.dto.IncomeRequest;
 import com.myfinance.ledger.interfaces.rest.income.dto.IncomeResponse;
-import com.myfinance.ledger.application.income.IncomeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,8 @@ public class IncomeController {
      */
     @PostMapping
     public ResponseEntity<IncomeResponse> createIncome(@RequestBody IncomeRequest request) {
-        IncomeResponse response = incomeService.createIncome(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        IncomeResult result = incomeService.createIncome(request.toCommand());
+        return ResponseEntity.status(HttpStatus.CREATED).body(IncomeResponse.from(result));
     }
 
     /**
@@ -34,8 +35,8 @@ public class IncomeController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<IncomeResponse> getIncome(@PathVariable Long id) {
-        IncomeResponse response = incomeService.getIncome(id);
-        return ResponseEntity.ok(response);
+        IncomeResult result = incomeService.getIncome(id);
+        return ResponseEntity.ok(IncomeResponse.from(result));
     }
 
     /**
@@ -46,8 +47,8 @@ public class IncomeController {
             @RequestParam int year,
             @RequestParam int month
     ) {
-        List<IncomeResponse> responses = incomeService.getMonthlyIncomes(year, month);
-        return ResponseEntity.ok(responses);
+        List<IncomeResult> results = incomeService.getMonthlyIncomes(year, month);
+        return ResponseEntity.ok(results.stream().map(IncomeResponse::from).toList());
     }
 
     /**
@@ -58,8 +59,8 @@ public class IncomeController {
             @PathVariable Long id,
             @RequestBody IncomeRequest request
     ) {
-        IncomeResponse response = incomeService.updateIncome(id, request);
-        return ResponseEntity.ok(response);
+        IncomeResult result = incomeService.updateIncome(id, request.toCommand());
+        return ResponseEntity.ok(IncomeResponse.from(result));
     }
 
     /**

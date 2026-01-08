@@ -1,10 +1,10 @@
 package com.myfinance.ledger.application.income;
 
 import com.myfinance.ledger.application.category.CategoryRepository;
+import com.myfinance.ledger.application.income.dto.IncomeCommand;
+import com.myfinance.ledger.application.income.dto.IncomeResult;
 import com.myfinance.ledger.domain.category.Category;
 import com.myfinance.ledger.domain.income.Income;
-import com.myfinance.ledger.interfaces.rest.income.dto.IncomeRequest;
-import com.myfinance.ledger.interfaces.rest.income.dto.IncomeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,48 +27,48 @@ public class IncomeService {
      * 수입 생성
      */
     @Transactional
-    public IncomeResponse createIncome(IncomeRequest request) {
-        Category majorCategory = findCategoryById(request.getMajorCategoryId());
-        Category minorCategory = request.getMinorCategoryId() != null
-                ? findCategoryById(request.getMinorCategoryId())
+    public IncomeResult createIncome(IncomeCommand command) {
+        Category majorCategory = findCategoryById(command.getMajorCategoryId());
+        Category minorCategory = command.getMinorCategoryId() != null
+                ? findCategoryById(command.getMinorCategoryId())
                 : null;
 
         Income income = Income.of(
-                request.getIncomeDate(),
+                command.getIncomeDate(),
                 majorCategory,
                 minorCategory,
-                request.getContent(),
-                request.getAmount()
+                command.getContent(),
+                command.getAmount()
         );
 
         Income savedIncome = incomeRepository.save(income);
-        return IncomeResponse.from(savedIncome);
+        return IncomeResult.from(savedIncome);
     }
 
     /**
      * 수입 단건 조회
      */
-    public IncomeResponse getIncome(Long id) {
+    public IncomeResult getIncome(Long id) {
         Income income = findIncomeById(id);
-        return IncomeResponse.from(income);
+        return IncomeResult.from(income);
     }
 
     /**
      * 전체 수입 목록 조회
      */
-    public List<IncomeResponse> getAllIncomes() {
+    public List<IncomeResult> getAllIncomes() {
         return incomeRepository.findAll().stream()
-                .map(IncomeResponse::from)
+                .map(IncomeResult::from)
                 .toList();
     }
 
-    public List<IncomeResponse> getMonthlyIncomes(int year, int month) {
+    public List<IncomeResult> getMonthlyIncomes(int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
         return incomeRepository.findByIncomeDateBetweenOrderByIncomeDateDesc(startDate, endDate)
                 .stream()
-                .map(IncomeResponse::from)
+                .map(IncomeResult::from)
                 .toList();
     }
 
@@ -76,23 +76,23 @@ public class IncomeService {
      * 수입 수정
      */
     @Transactional
-    public IncomeResponse updateIncome(Long id, IncomeRequest request) {
+    public IncomeResult updateIncome(Long id, IncomeCommand command) {
         Income income = findIncomeById(id);
 
-        Category majorCategory = findCategoryById(request.getMajorCategoryId());
-        Category minorCategory = request.getMinorCategoryId() != null
-                ? findCategoryById(request.getMinorCategoryId())
+        Category majorCategory = findCategoryById(command.getMajorCategoryId());
+        Category minorCategory = command.getMinorCategoryId() != null
+                ? findCategoryById(command.getMinorCategoryId())
                 : null;
 
         income.update(
-                request.getIncomeDate(),
+                command.getIncomeDate(),
                 majorCategory,
                 minorCategory,
-                request.getContent(),
-                request.getAmount()
+                command.getContent(),
+                command.getAmount()
         );
 
-        return IncomeResponse.from(income);
+        return IncomeResult.from(income);
     }
 
     /**
