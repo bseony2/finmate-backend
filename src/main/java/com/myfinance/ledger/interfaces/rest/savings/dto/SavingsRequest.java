@@ -1,5 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.savings.dto;
 
+import com.myfinance.ledger.application.savings.dto.SavingsCommand;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
@@ -33,4 +34,15 @@ public class SavingsRequest {
 
     @NotNull(message = "금액은 필수입니다")
     private BigDecimal amount;
+
+    public SavingsCommand toCommand() {
+        return new SavingsCommand(
+                this.savingDate,
+                this.majorCategoryId,
+                this.minorCategoryId,
+                this.acctNo,
+                this.content,
+                this.amount
+        );
+    }
 }

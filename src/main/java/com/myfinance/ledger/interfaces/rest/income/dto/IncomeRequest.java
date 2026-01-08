@@ -1,7 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.income.dto;
 
 import com.myfinance.ledger.application.income.dto.IncomeCommand;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,15 +16,6 @@ public class IncomeRequest {
     private Long minorCategoryId;
     private String content;
     private BigDecimal amount;
-
-    @Builder
-    public IncomeRequest(LocalDate incomeDate, Long majorCategoryId, Long minorCategoryId, String content, BigDecimal amount) {
-        this.incomeDate = incomeDate;
-        this.majorCategoryId = majorCategoryId;
-        this.minorCategoryId = minorCategoryId;
-        this.content = content;
-        this.amount = amount;
-    }
 
     public IncomeCommand toCommand() {
         return new IncomeCommand(

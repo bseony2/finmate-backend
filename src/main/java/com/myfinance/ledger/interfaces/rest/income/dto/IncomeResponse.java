@@ -1,13 +1,11 @@
 package com.myfinance.ledger.interfaces.rest.income.dto;
 
 import com.myfinance.ledger.application.income.dto.IncomeResult;
-import com.myfinance.ledger.domain.income.Income;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder

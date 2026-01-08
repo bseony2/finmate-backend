@@ -1,6 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.savings.dto;
 
-import com.myfinance.ledger.domain.savings.Savings;
+import com.myfinance.ledger.application.savings.dto.SavingsResult;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -47,16 +47,16 @@ public class SavingsResponse {
      * @param savings 저축 엔티티
      * @return SavingsResponse
      */
-    public static SavingsResponse from(Savings savings) {
+    public static SavingsResponse from(SavingsResult savings) {
         return SavingsResponse.builder()
                 .id(savings.getId())
                 .savingDate(savings.getSavingDate())
-                .majorCategoryId(savings.getMajorCategory().getId())
-                .majorCategoryName(savings.getMajorCategory().getName())
-                .minorCategoryId(savings.getMinorCategory() != null ?
-                        savings.getMinorCategory().getId() : null)
-                .minorCategoryName(savings.getMinorCategory() != null ?
-                        savings.getMinorCategory().getName() : null)
+                .majorCategoryId(savings.getMajorCategoryId())
+                .majorCategoryName(savings.getMajorCategoryName())
+                .minorCategoryId(savings.getMinorCategoryId() != null ?
+                        savings.getMinorCategoryId() : null)
+                .minorCategoryName(savings.getMinorCategoryName() != null ?
+                        savings.getMinorCategoryName() : null)
                 .acctNo(savings.getAcctNo())
                 .content(savings.getContent())
                 .amount(savings.getAmount())

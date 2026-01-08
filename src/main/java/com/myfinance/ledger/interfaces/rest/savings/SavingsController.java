@@ -1,5 +1,6 @@
 package com.myfinance.ledger.interfaces.rest.savings;
 
+import com.myfinance.ledger.application.savings.dto.SavingsResult;
 import com.myfinance.ledger.interfaces.rest.savings.dto.SavingsRequest;
 import com.myfinance.ledger.interfaces.rest.savings.dto.SavingsResponse;
 import com.myfinance.ledger.application.savings.SavingsService;
@@ -21,14 +22,14 @@ public class SavingsController {
     public ResponseEntity<SavingsResponse> createSavings(
             @Valid @RequestBody SavingsRequest request  // ← @Valid 추가!
     ) {
-        SavingsResponse response = savingsService.createSavings(request);
-        return ResponseEntity.ok(response);
+        SavingsResult result = savingsService.createSavings(request.toCommand());
+        return ResponseEntity.ok(SavingsResponse.from(result));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SavingsResponse> getSavings(@PathVariable Long id) {
-        SavingsResponse response = savingsService.getSavingsById(id);
-        return ResponseEntity.ok(response);
+        SavingsResult result = savingsService.getSavingsById(id);
+        return ResponseEntity.ok(SavingsResponse.from(result));
     }
 
     @GetMapping("/monthly/{year}/{month}")
@@ -43,8 +44,8 @@ public class SavingsController {
             throw new IllegalArgumentException("월은 1-12 사이여야 합니다");
         }
 
-        List<SavingsResponse> responses = savingsService.getMonthlySavings(year, month);
-        return ResponseEntity.ok(responses);
+        List<SavingsResult> results = savingsService.getMonthlySavings(year, month);
+        return ResponseEntity.ok(results.stream().map(SavingsResponse::from).toList());
     }
 
     @PutMapping("/{id}")
@@ -52,8 +53,8 @@ public class SavingsController {
             @PathVariable Long id,
             @Valid @RequestBody SavingsRequest request  // ← @Valid 추가!
     ) {
-        SavingsResponse response = savingsService.updateSavings(id, request);
-        return ResponseEntity.ok(response);
+        SavingsResult result = savingsService.updateSavings(id, request.toCommand());
+        return ResponseEntity.ok(SavingsResponse.from(result));
     }
 
     @DeleteMapping("/{id}")
