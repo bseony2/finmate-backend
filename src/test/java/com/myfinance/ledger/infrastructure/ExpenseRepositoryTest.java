@@ -1,7 +1,8 @@
-package com.myfinance.repository;
+package com.myfinance.ledger.infrastructure;
 
-import com.myfinance.domain.Expense;
-import com.myfinance.domain.ExpenseType;
+import com.myfinance.ledger.application.expense.ExpenseRepository;
+import com.myfinance.ledger.domain.expense.Expense;
+import com.myfinance.ledger.domain.category.ExpenseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,12 +23,6 @@ class ExpenseRepositoryTest extends AbstractRepositoryTest{
 
     @Autowired
     private ExpenseRepository expenseRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private CategoryTypeRepository categoryTypeRepository;
 
     @BeforeEach
     void setUp() {
@@ -161,7 +156,7 @@ class ExpenseRepositoryTest extends AbstractRepositoryTest{
         );
 
         // when
-        expenseRepository.delete(saved);
+        expenseRepository.deleteById(saved.getId());
 
         // then
         assertThat(expenseRepository.findById(saved.getId())).isEmpty();

@@ -1,5 +1,8 @@
-package com.myfinance.domain;
+package com.myfinance.ledger.domain;
 
+import com.myfinance.ledger.domain.category.Category;
+import com.myfinance.ledger.domain.category.CategoryType;
+import com.myfinance.ledger.domain.savings.Savings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

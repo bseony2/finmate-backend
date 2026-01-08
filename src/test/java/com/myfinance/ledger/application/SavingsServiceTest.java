@@ -1,8 +1,8 @@
-package com.myfinance.service;
+package com.myfinance.ledger.application;
 
-import com.myfinance.domain.Category;
-import com.myfinance.dto.request.SavingsRequest;
-import com.myfinance.dto.response.SavingsResponse;
+import com.myfinance.ledger.application.savings.dto.SavingsCommand;
+import com.myfinance.ledger.application.savings.dto.SavingsResult;
+import com.myfinance.ledger.domain.category.Category;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,13 +35,13 @@ class SavingsServiceTest extends AbstractServiceTest{
     @DisplayName("저축 신규")
     void Create_Savings_Success() {
         // given
-        SavingsRequest request = createRequest();
+        SavingsCommand command = createRequest();
 
         // when
-        SavingsResponse response = savingsService.createSavings(request);
+        SavingsResult result = savingsService.createSavings(command);
 
         // then
-        assertThat(response.getContent()).isEqualTo("테스트 저축");
+        assertThat(result.getContent()).isEqualTo("테스트 저축");
 
     }
 
@@ -67,12 +67,12 @@ class SavingsServiceTest extends AbstractServiceTest{
         savingsService.createSavings(createRequest(LocalDate.of(1000, 11, 1)));
 
         // when
-        List<SavingsResponse> monthlySavings = savingsService.getMonthlySavings(1000, 12);
+        List<SavingsResult> results = savingsService.getMonthlySavings(1000, 12);
 
         // then
-        assertThat(monthlySavings).hasSize(2);
-        assertThat(monthlySavings)
-                .extracting(SavingsResponse::getSavingDate)
+        assertThat(results).hasSize(2);
+        assertThat(results)
+                .extracting(SavingsResult::getSavingDate)
                 .allMatch(date -> 1000 ==date.getYear() && 12 == date.getMonthValue());
     }
 
@@ -80,16 +80,16 @@ class SavingsServiceTest extends AbstractServiceTest{
     @DisplayName("저축 수정 성공")
     void updateSavings_Success() {
         // given
-        SavingsRequest request = this.createRequest();
-        SavingsResponse savings = savingsService.createSavings(request);
+        SavingsCommand command = this.createRequest();
+        SavingsResult result = savingsService.createSavings(command);
 
-        SavingsRequest updateRequest = createUpdateRequest();
+        SavingsCommand updateRequest = createUpdateRequest();
 
         // when
-        SavingsResponse updated = savingsService.updateSavings(savings.getId(), updateRequest);
+        SavingsResult updated = savingsService.updateSavings(result.getId(), updateRequest);
 
         // then
-        assertThat(updated.getId()).isEqualTo(savings.getId());
+        assertThat(updated.getId()).isEqualTo(result.getId());
         assertThat(updated.getSavingDate()).isEqualTo(LocalDate.of(2025, 12, 1));
         assertThat(updated.getMajorCategoryName()).isEqualTo("update1");
         assertThat(updated.getMinorCategoryName()).isEqualTo("update2");
@@ -103,7 +103,7 @@ class SavingsServiceTest extends AbstractServiceTest{
     void updateSavings_NotFound() {
         // given
         Long notExistId = 999999999L;
-        SavingsRequest updateRequest = createRequest();
+        SavingsCommand updateRequest = createRequest();
 
         // when & then
         assertThatThrownBy(() -> savingsService.updateSavings(notExistId, updateRequest))
@@ -112,7 +112,7 @@ class SavingsServiceTest extends AbstractServiceTest{
 
     }
 
-    private SavingsRequest createUpdateRequest() {
+    private SavingsCommand createUpdateRequest() {
         Category update1 = createCategory("update1", null);
         Category update2 = createCategory("update2", update1);
 
@@ -130,7 +130,7 @@ class SavingsServiceTest extends AbstractServiceTest{
     @DisplayName("저축 삭제 성공")
     void deleteSavings_Success() {
         // given
-        SavingsResponse savings = savingsService.createSavings(createRequest());
+        SavingsResult savings = savingsService.createSavings(createRequest());
 
         // when
         savingsService.deleteSavings(savings.getId());
@@ -154,36 +154,36 @@ class SavingsServiceTest extends AbstractServiceTest{
         
     }
 
-    private SavingsRequest createRequest(LocalDate localdate) {
-        return SavingsRequest.builder()
-                .savingDate(localdate)
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(minorCategory.getId())
-                .acctNo("1234567890")
-                .content("테스트 저축")
-                .amount(new BigDecimal(100000))
-                .build();
+    private SavingsCommand createRequest(LocalDate localdate) {
+        return createRequest(
+                localdate,
+                majorCategory,
+                minorCategory,
+                "1234567890",
+                "테스트 저축",
+                new BigDecimal(100000)
+        );
     }
 
-    private SavingsRequest createRequest() {
-        return SavingsRequest.builder()
-                .savingDate(LocalDate.now())
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(minorCategory.getId())
-                .acctNo("1234567890")
-                .content("테스트 저축")
-                .amount(new BigDecimal(100000))
-                .build();
+    private SavingsCommand createRequest() {
+        return new SavingsCommand(
+                LocalDate.now(),
+                majorCategory.getId(),
+                minorCategory.getId(),
+                "1234567890",
+                "테스트 저축",
+                new BigDecimal(100000)
+        );
     }
 
-    private SavingsRequest createRequest(LocalDate localdate, Category majorCategory, Category minorCategory, String accString, String content, BigDecimal amount) {
-        return SavingsRequest.builder()
-                .savingDate(localdate)
-                .majorCategoryId(majorCategory.getId())
-                .minorCategoryId(minorCategory.getId())
-                .acctNo(accString)
-                .content(content)
-                .amount(amount)
-                .build();
+    private SavingsCommand createRequest(LocalDate localdate, Category majorCategory, Category minorCategory, String acctNo, String content, BigDecimal amount) {
+        return new SavingsCommand(
+                localdate,
+                majorCategory.getId(),
+                minorCategory.getId(),
+                acctNo,
+                content,
+                amount
+        );
     }
 }

@@ -1,6 +1,7 @@
-package com.myfinance.repository;
+package com.myfinance.ledger.infrastructure;
 
-import com.myfinance.domain.Savings;
+import com.myfinance.ledger.application.savings.SavingsRepository;
+import com.myfinance.ledger.domain.savings.Savings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,10 +21,6 @@ class SavingsRepositoryTest extends AbstractRepositoryTest{
 
     @Autowired
     private SavingsRepository savingsRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private CategoryTypeRepository categoryTypeRepository;
 
     @BeforeEach
     void setUp() {

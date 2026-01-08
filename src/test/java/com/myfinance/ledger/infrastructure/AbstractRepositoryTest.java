@@ -1,7 +1,9 @@
-package com.myfinance.repository;
+package com.myfinance.ledger.infrastructure;
 
-import com.myfinance.domain.Category;
-import com.myfinance.domain.CategoryType;
+import com.myfinance.ledger.application.category.CategoryRepository;
+import com.myfinance.ledger.application.category.CategoryTypeRepository;
+import com.myfinance.ledger.domain.category.Category;
+import com.myfinance.ledger.domain.category.CategoryType;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,5 +1,6 @@
-package com.myfinance.domain;
+package com.myfinance.ledger.domain;
 
+import com.myfinance.ledger.domain.category.ExpenseType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ class ExpenseTypeTest {
 
         // then
         assertThat(type).isEqualTo(ExpenseType.FIXED);
-        assertThat(type.getValue()).isEqualTo(0);
+        assertThat(type.getValue()).isZero();
         assertThat(type.getDescription()).isEqualTo("고정지출");
     }
 

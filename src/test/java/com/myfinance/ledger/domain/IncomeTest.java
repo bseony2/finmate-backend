@@ -1,6 +1,10 @@
-package com.myfinance.domain;
+package com.myfinance.ledger.domain;
 
+import com.myfinance.ledger.domain.category.Category;
+import com.myfinance.ledger.domain.category.CategoryType;
+import com.myfinance.ledger.domain.income.Income;
 import jakarta.transaction.Transactional;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +52,7 @@ class IncomeTest {
         BigDecimal amount = BigDecimal.ZERO;
 
         //when & then
-        assertThatThrownBy(() -> Income.of(LocalDate.now(), majorCategory, minorCategory, content, amount))
+        Assertions.assertThatThrownBy(() -> Income.of(LocalDate.now(), majorCategory, minorCategory, content, amount))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("0보다 작거나 같을수 없습니다");
 
