@@ -29,13 +29,14 @@ public class CategoryResult {
                 .displayOrder(category.getDisplayOrder())
                 .createdAt(category.getCreatedAt())
                 .updatedAt(category.getUpdatedAt())
+                .children(List.of())
                 .build();
     }
 
     public static CategoryResult fromWithChildren(Category category, List<Category> allCategories) {
         List<CategoryResult> children = allCategories.stream()
                 .filter(c -> c.getParent() != null && c.getParent().getId().equals(category.getId()))
-                .map(CategoryResult::from)
+                .map(child -> CategoryResult.fromWithChildren(child, allCategories))  // 재귀
                 .toList();
 
         return CategoryResult.builder()

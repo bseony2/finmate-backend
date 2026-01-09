@@ -21,6 +21,13 @@ public class CategoryResponse {
     private List<CategoryResponse> children;
 
     public static CategoryResponse from(CategoryResult result) {
+
+        List<CategoryResponse> children = result.getChildren() != null
+                ? result.getChildren().stream()
+                .map(CategoryResponse::from)
+                .toList()
+                : List.of();
+
         return CategoryResponse.builder()
                 .id(result.getId())
                 .name(result.getName())
@@ -29,6 +36,7 @@ public class CategoryResponse {
                 .displayOrder(result.getDisplayOrder())
                 .createdAt(result.getCreatedAt())
                 .updatedAt(result.getUpdatedAt())
+                .children(children)
                 .build();
     }
 
