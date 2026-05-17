@@ -33,7 +33,7 @@ public class ExpenseResult {
                 expense.getMajorCategory().getId(),
                 expense.getMajorCategory().getName(),
                 expense.getMinorCategory() != null ?
-                        expense.getId() : null,
+                        expense.getMinorCategory().getId() : null,
                 expense.getMinorCategory() != null ?
                         expense.getMinorCategory().getName() : null,
                 expense.getContent(),
