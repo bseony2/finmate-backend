@@ -1,1 +1,1 @@
-rootProject.name = "my-finance-manager-backend"
+rootProject.name = "finmate-backend"
